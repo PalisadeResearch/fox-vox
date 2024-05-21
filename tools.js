@@ -3,18 +3,24 @@ export const GENERATION_TOOLS = [
         "type": "function",
         "function": {
             "name": "output",
-            "description": "Output your final generation in full",
+            "description": "Output the list of nodes, with the newly generated text" +
+                "in the order associated with the original.",
             "parameters": {
-                "type": "object",
-                "properties": {
-                    "text": {"type": "string"},
-                },
-                "required": [
-                    "text",
-                ]
+                    "type": "object",
+                    "properties": {
+                        "nodes": {
+                            "type": "array",
+                            "description": "The list of all nodes, where each item is the text corresponding to a node",
+                            "items": {
+                                "type": "string",
+                            },
+                        },
+
+                    },
+                    "required": ["nodes"]
             }
         }
-    },
+    }
 ];
 
 export const EVALUATION_TOOLS = [

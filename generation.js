@@ -35,8 +35,7 @@ async function evaluate(choices, evaluation) {
             choices.map(async choice => {
                 try {
                     console.log('Parsing context...');
-                    let context = Hjson.parse(choice.message.tool_calls?.[0].function?.arguments);
-                    context = [evaluation, {role: "user", content: context["text"]}];
+                    let context = [evaluation, {role: "user", content: choice.message.tool_calls?.[0].function?.arguments}];
 
                     console.log('Generating completion for evaluation...');
                     const completion_result = await generate_completion(context, EVALUATION_TOOLS);
@@ -65,7 +64,7 @@ async function evaluate(choices, evaluation) {
 export async function ToT_DFS(template, original) {
     console.log('Starting ToT_DFS...');
     const messages = [ {"role": "user", "content": original} ];
-    let final_text = "Error when generating";
+    let chosen_text = [];
 
     for(let step = 0; step < DEPTH; step++) {
         console.log(`Step ${step}:`);
@@ -74,10 +73,10 @@ export async function ToT_DFS(template, original) {
         if(!choice.message.tool_calls) continue;
 
         console.log('Parsing choice text...');
-        const choiceText = Hjson.parse(choice.message.tool_calls.find(func => func.function?.arguments)?.function?.arguments)?.text;
+        // Parse the choice text as an array of generated texts
 
-        final_text = choiceText;
-        messages.push({"role": "assistant", "content": choiceText});
+        chosen_text = choice.message.tool_calls?.[0].function?.arguments
+        messages.push({"role": "assistant", "content": chosen_text});
 
         console.log('Generating critique...');
         const critique = await generate_completion([template.critic, ...messages], CRITIC_TOOLS);
@@ -88,5 +87,6 @@ export async function ToT_DFS(template, original) {
         console.log('Current messages:', messages);
     }
     console.log('ToT_DFS completed.');
-    return final_text;
+    // Return the array of final generated texts
+    return chosen_text;
 }
