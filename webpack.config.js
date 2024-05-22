@@ -2,8 +2,8 @@ import * as path from 'path';
 
 export default {
     entry: {
-        popup: './popup.js',    // Your current main entry point
-        contentScript: './contentScript.js', // Your new entry point
+        popup: './popup.js',
+        contentScript: './contentScript.js',
     },
     output: {
         filename: '[name].main.js',

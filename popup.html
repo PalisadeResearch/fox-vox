@@ -3,13 +3,40 @@
 <head>
     <title>My Extension</title>
     <style>
-        /* Add your CSS here */
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #buttonContainer {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h1, h2 {
+            color: #333;
+        }
     </style>
 </head>
 <body>
-<h1>Humorous Rewriter!</h1>
-<p>Press the button</p>
-<button id="button">Generate</button>
+<h1>Welcome to FoxVox Rewriter!</h1>
+<h2>I want to generate in style of...</h2>
+<div id='buttonContainer'></div>
+<button id='generate'>Generate</button>
 <script src="./dist/popup.main.js"></script>
 </body>
 </html>

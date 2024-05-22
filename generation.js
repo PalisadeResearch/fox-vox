@@ -36,7 +36,11 @@ async function evaluate(choices, evaluation) {
                 try {
                     console.log('Parsing context...');
                     let context = [evaluation, {role: "user", content: choice.message.tool_calls?.[0].function?.arguments}];
+                    if (!context[1].content) {
+                        return -1;
+                    }
 
+                    console.log(context)
                     console.log('Generating completion for evaluation...');
                     const completion_result = await generate_completion(context, EVALUATION_TOOLS);
 
@@ -62,7 +66,7 @@ async function evaluate(choices, evaluation) {
 }
 
 export async function ToT_DFS(template, original) {
-    console.log('Starting ToT_DFS...');
+    console.log('Starting ToT_DFS... with template:' + template);
     const messages = [ {"role": "user", "content": original} ];
     let chosen_text = [];
 
@@ -73,12 +77,12 @@ export async function ToT_DFS(template, original) {
         if(!choice.message.tool_calls) continue;
 
         console.log('Parsing choice text...');
-        // Parse the choice text as an array of generated texts
 
         chosen_text = choice.message.tool_calls?.[0].function?.arguments
         messages.push({"role": "assistant", "content": chosen_text});
 
         console.log('Generating critique...');
+
         const critique = await generate_completion([template.critic, ...messages], CRITIC_TOOLS);
         const critiqueText = critique?.choices[0]?.message.tool_calls[0]?.function.arguments ?
             Hjson.parse(critique.choices[0].message.tool_calls[0].function.arguments).text : null;
