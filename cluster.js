@@ -6,13 +6,11 @@ const openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: tru
 
 async function generate_embeddings(nodes) {
     const promises = nodes.map((node, i) => {
-        console.log(`Preparing to generate embedding for node ${i+1} out of ${nodes.length}.`);
         return openai.embeddings.create({
             model: 'text-embedding-3-large',
             input: node.text.trim(), // Use node.text here
             encoding_format: 'float',
         }).then(response => {
-            console.log(`Embedding generated for node ${i+1}.`);
             node.embedding = response.data[0].embedding; // Add embedding to the node
             return node; // Return the node not just the embedding
         });

@@ -1,7 +1,5 @@
 import OpenAI from "openai";
-import Hjson from 'hjson';
-
-const average = array => array.reduce((a, b) => a + b) / array.length;
+import Hjson from "hjson";
 
 const OPENAI_API_KEY="sk-proj-6AOj927d5Fqfv1h5zj7yT3BlbkFJIxrTT7TOuxcpWRNZGii3"
 
@@ -9,88 +7,43 @@ console.log('Initializing OpenAI...');
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true });
 console.log('OpenAI initialized.');
 
-const DEPTH = 3;
-const WIDTH = 3;
-
-import { GENERATION_TOOLS, EVALUATION_TOOLS, CRITIC_TOOLS } from './tools.js';
-
-async function generate_completion(context, tools) {
-    context = context || [];
-
-    console.log('Generating completion...');
-    const completion = await openai.chat.completions.create({
+async function generateCompletion(context) {
+    return openai.chat.completions.create({
         model: 'gpt-4o',
         messages: context,
-        n: WIDTH,
-        tools: tools,
-    });
-    console.log('Completion generated.');
-    return completion;
-}
+        tools: [
+            {
+                "type": "function",
+                "function": {
+                    "name": "output",
+                    "description": "Output the list of texts, with the newly generated text" +
+                        "each associated with one of the original text blocks and in the same order.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "nodes": {
+                                "type": "array",
+                                "description": "The list of all text blocks, where each item is the text corresponding to a text block",
+                                "items": {
+                                    "type": "string",
+                                },
+                            },
 
-async function evaluate(choices, evaluation) {
-    console.log('Evaluating choices...')
-    try {
-        const ratings = await Promise.all(
-            choices.map(async choice => {
-                try {
-                    console.log('Parsing context...');
-                    let context = [evaluation, {role: "user", content: choice.message.tool_calls?.[0].function?.arguments}];
-                    if (!context[1].content) {
-                        return -1;
+                        },
+                        "required": ["nodes"]
                     }
-
-                    console.log(context)
-                    console.log('Generating completion for evaluation...');
-                    const completion_result = await generate_completion(context, EVALUATION_TOOLS);
-
-                    console.log('Calculating average rating...');
-                    return average(
-                        completion_result.choices.map(option =>
-                            Hjson.parse(option.message.tool_calls?.[0].function?.arguments)["rating"]
-                        )
-                    );
-                } catch (error) {
-                    console.error('Error occured:', error);
-                    return -1;
                 }
-            })
-        );
-        const maxRatingIndex = ratings.indexOf(Math.max(...ratings));
-        console.log('Evaluation completed.');
-        return choices[maxRatingIndex];
-    } catch (error) {
-        console.error('Evaluation failed:', error);
-        return null;
-    }
+            }
+        ],
+        tool_choice: "required"
+    });
 }
 
-export async function ToT_DFS(template, original) {
-    console.log('Starting ToT_DFS... with template:' + template);
-    const messages = [ {"role": "user", "content": original} ];
-    let chosen_text = [];
+export async function CoT(template, original) {
+    console.log('Starting chain of thought algorithm...');
+    const messages = [{ "role": "user", "content": original }];
 
-    for(let step = 0; step < DEPTH; step++) {
-        console.log(`Step ${step}:`);
-        const completion = await generate_completion([template.generation, ...messages], GENERATION_TOOLS);
-        const choice = await evaluate(completion.choices, template.evaluation);
-        if(!choice.message.tool_calls) continue;
+    const final_completion = await generateCompletion([template.generation, ...messages]);
 
-        console.log('Parsing choice text...');
-
-        chosen_text = choice.message.tool_calls?.[0].function?.arguments
-        messages.push({"role": "assistant", "content": chosen_text});
-
-        console.log('Generating critique...');
-
-        const critique = await generate_completion([template.critic, ...messages], CRITIC_TOOLS);
-        const critiqueText = critique?.choices[0]?.message.tool_calls[0]?.function.arguments ?
-            Hjson.parse(critique.choices[0].message.tool_calls[0].function.arguments).text : null;
-
-        if(critiqueText) messages.push({"role": "user", "content": critiqueText});
-        console.log('Current messages:', messages);
-    }
-    console.log('ToT_DFS completed.');
-    // Return the array of final generated texts
-    return chosen_text;
+    return Hjson.parse(final_completion.choices[0].message.tool_calls[0].function.arguments)
 }

@@ -3,7 +3,7 @@
   "name": "My Extension",
   "version": "1.0",
   "description": "A simple Chrome extension.",
-  "permissions": ["storage", "activeTab", "tabs", "webNavigation"],
+  "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -20,5 +20,8 @@
       "matches": ["<all_urls>"],
       "js": ["dist/contentScript.main.js"]
     }
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ]
 }

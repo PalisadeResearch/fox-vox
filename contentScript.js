@@ -1,4 +1,8 @@
+
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(request.ping) { sendResponse({pong: true}); return; }
+
     if (request.action === "fetchText") {
         var xpath = function(node) {
             var index, path = [], sibling, siblings;

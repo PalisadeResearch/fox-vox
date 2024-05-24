@@ -1,0 +1,7 @@
+
+----------------------
+"You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings is funny. Suggest some improvements to make it funnier. Use critique tool to output your critique."
+
+Make a critic, this is a prompt ^
+----------------------
+

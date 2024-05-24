@@ -1,28 +1,29 @@
 {
     "templates": {
+        "republican": {
+            "name": "Fox News!",
+            "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it push far-right republican agenda. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
+            "critic": ""
+        },
+        "democrat": {
+            "name": "Vox News!",
+            "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it push far-left democrat agenda. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
+            "critic": ""
+        },
+        "justfacts": {
+            "name": "OnlyFacts",
+            "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
+            "critic": ""
+        },
         "humorous": {
-            "name": "Humor!",
-            "generation": "You will be provided with the input, structured as a json string with the list of nodes. Each node will have a text property, corresponding to the original string. Using the given context inferred from all provided nodes, edit each of the original texts to make it humorous. Importantly, length of the edited text should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Importantly, output the edited strings\nin the exact same order as their original version in the original input.",
-            "critic": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings is funny. Suggest some improvements to make it funnier. Use critique tool to output your critique.",
-            "evaluation": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings is funny. Rate the input in its entirety with a single 0-10 score based on how funny it is. Use the evaluate tool to output a singular integer."
+            "name": "Humor.",
+            "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it humorous. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
+            "critic": ""
         },
-        "newyorktimes": {
-            "name": "New York Times!",
-            "generation": "You will be provided with the input, structured as a json string with the list of nodes. Each node will have a text property, corresponding to the original string. Using the given context inferred from all provided nodes, edit each of the original texts to align with the journalistic style of the New York Times. Importantly, length of the edited text should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Importantly, output the edited strings in the exact same order as their original version in the original input.",
-            "critic": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the journalistic standards of the New York Times. Suggest some improvements to make it more aligned with the style. Use critique tool to output your critique.",
-            "evaluation": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the journalistic standards of the New York Times. Rate the input in its entirety with a single 0-10 score based on its alignment with the New York Times style. Use the evaluate tool to output a singular integer."
-        },
-        "foxnews": {
-            "name": "FoxNews!",
-            "generation": "You will be provided with the input, structured as a json string with the list of nodes. Each node will have a text property, corresponding to the original string. Using the given context inferred from all provided nodes, edit each of the original texts to align with the style of Fox News. Importantly, length of the edited text should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Importantly, output the edited strings in the exact same order as their original version in the original input.",
-            "critic": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the style of Fox News. Suggest some improvements to make it more aligned with the style. Use critique tool to output your critique.",
-            "evaluation": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the style of Fox News. Rate the input in its entirety with a single 0-10 score based on its alignment with the Fox News style. Use the evaluate tool to output a singular integer."
-        },
-        "russiatoday": {
-            "name": "Russia Today!",
-            "generation": "You will be provided with the input, structured as a json string with the list of nodes. Each node will have a text property, corresponding to the original string. Using the given context inferred from all provided nodes, edit each of the original texts to align with the style of Russia Today. Importantly, length of the edited text should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Importantly, output the edited strings in the exact same order as their original version in the original input.",
-            "critic": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the style of Russia Today. Suggest some improvements to make it more aligned with the style, like 'The line X should be improved, and part Y of the text isn't in the style of Russia Today'. Use critique tool to output your critique.",
-            "evaluation": "You will be provided with the input, structured as a json string with the list of nodes. Check if the text composed of all individual strings adheres to the style of Russia Today. Rate the input in its entirety with a single 0-10 score based on its alignment with the Russia Today style. Use the evaluate tool to output a singular integer."
+        "conspiracy": {
+            "name": "Conspiracy.",
+            "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it sound like wildest conspiracy theories. Push their agenda aggressively and slightly exaggeratedly. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
+            "critic": ""
         }
     }
 }
