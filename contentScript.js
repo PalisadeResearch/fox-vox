@@ -1,5 +1,3 @@
-
-
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.ping) { sendResponse({pong: true}); return; }
 
@@ -73,4 +71,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             }
         });
     }
+});
+
+window.addEventListener('beforeunload', async () => {
+    await chrome.runtime.sendMessage({action: 'pageRefreshed'});
 });
