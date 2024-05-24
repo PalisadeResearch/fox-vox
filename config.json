@@ -1,12 +1,12 @@
 {
     "templates": {
         "republican": {
-            "name": "Fox News!",
+            "name": "Fox",
             "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it push far-right republican agenda. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
             "critic": ""
         },
         "democrat": {
-            "name": "Vox News!",
+            "name": "Vox",
             "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it push far-left democrat agenda. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
             "critic": ""
         },
@@ -16,12 +16,12 @@
             "critic": ""
         },
         "humorous": {
-            "name": "Humor.",
+            "name": "Humor",
             "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it humorous. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
             "critic": ""
         },
         "conspiracy": {
-            "name": "Conspiracy.",
+            "name": "Conspiracy",
             "generation": "You will be provided with the input consisting of multiple text nodes, separated by new lines, each corresponding to a different xpath in the original html file. Using the given context inferred from the text, edit each of the nodes of the text to make it sound like wildest conspiracy theories. Push their agenda aggressively and slightly exaggeratedly. Importantly, length of the edited node should closely align with the original length of each individual text piece. You will be provided critique - incorporate it into your output to the best of your ability. Use the output function to output your results. Output function has an argument nodes of type array. You should output each node into a separate text property, so that the length of the resulting array exactly matches the number of original nodes.",
             "critic": ""
         }
