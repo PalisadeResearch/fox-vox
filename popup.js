@@ -15,6 +15,30 @@ if (!window.name) {
     window.name = generateUUID();
 }
 
+document.getElementById("openAIKey").addEventListener("input", function() {
+    const apiKey = document.getElementById("openAIKey").value;
+    if (apiKey) {
+        localStorage.setItem("OpenAI_API_KEY", apiKey);
+        document.getElementById("status").textContent = "API key saved!";
+    } else {
+        document.getElementById("status").textContent = "Please enter a valid API key.";
+    }
+    setTimeout(() => { document.getElementById("status").textContent = ''; }, 2000);
+});
+
+function getApiKey() {
+    return localStorage.getItem("OpenAI_API_KEY");
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const apiKeyInput = document.getElementById('openAIKey');
+
+    const storedApiKey = getApiKey()
+    if (storedApiKey) {
+        apiKeyInput.value = storedApiKey;
+    }
+});
+
 const DB_PREFIX = 'templateDatabase_';
 const CLUSTER_DB_NAME_PREFIX = 'clustersDatabase_';
 const ORIGINAL_DB_NAME_PREFIX = 'originalDatabase_';
@@ -230,6 +254,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                         console.log(clusters);
                         let promises = clusters.map(async cluster => {
+                            window.OpenAI_API_KEY = getApiKey();
                             const generation = await CoT(window.chosenTemplate, cluster.map(node => node.text).join('\n\n'));
                             console.log(generation);
 
@@ -280,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
 
                 const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
-                clearObjectStore(originalDbName, CLUSTER_STORE_NAME).then(() => {
+                clearObjectStore(originalDbName, PAIRED_STORE_NAME).then(() => {
                     console.log(`Cleared object store ${CLUSTER_STORE_NAME} in database ${originalDbName}`);
                 }).catch((error) => {
                     console.error(`Failed to clear object store ${CLUSTER_STORE_NAME} in database ${originalDbName}:`, error);

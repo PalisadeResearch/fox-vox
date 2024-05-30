@@ -1,11 +1,8 @@
 import OpenAI from "openai";
 import Hjson from "hjson";
 
-const OPENAI_API_KEY="sk-proj-6AOj927d5Fqfv1h5zj7yT3BlbkFJIxrTT7TOuxcpWRNZGii3"
 
-console.log('Initializing OpenAI...');
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true });
-console.log('OpenAI initialized.');
+let openai;
 
 async function generateCompletion(context) {
     return openai.chat.completions.create({
@@ -40,10 +37,18 @@ async function generateCompletion(context) {
 }
 
 export async function CoT(template, original) {
-    console.log('Starting chain of thought algorithm...');
-    const messages = [{ "role": "user", "content": original }];
+    try {
+        console.log('Initializing OpenAI...');
+        openai = new OpenAI({ apiKey: window.OpenAI_API_KEY, dangerouslyAllowBrowser: true });
+        console.log('OpenAI initialized.');
+        console.log('Starting chain of thought algorithm...');
+        const messages = [{ "role": "user", "content": original }];
 
-    const final_completion = await generateCompletion([template.generation, ...messages]);
+        const final_completion = await generateCompletion([template.generation, ...messages]);
 
-    return Hjson.parse(final_completion.choices[0].message.tool_calls[0].function.arguments)
+        return Hjson.parse(final_completion.choices[0].message.tool_calls[0].function.arguments);
+    } catch (error) {
+        console.error('Error occurred during CoT: ', error);
+        return { nodes: [] };
+    }
 }
