@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "My Extension",
+  "name": "FoxVox",
   "version": "1.0",
-  "description": "A simple Chrome extension.",
+  "description": "Provided with OpenAI API key, rewrites any website to look like something else!",
   "permissions": ["storage", "activeTab", "tabs", "scripting", "webNavigation"],
   "action": {
     "default_popup": "popup.html",
