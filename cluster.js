@@ -8,7 +8,7 @@ async function generate_embeddings(nodes) {
     const promises = nodes.map((node, i) => {
         return openai.embeddings.create({
             model: 'text-embedding-3-large',
-            input: node.text.trim(), // Use node.text here
+            input: node.plainText.trim(), // Use node.plainText here
             encoding_format: 'float',
         }).then(response => {
             node.embedding = response.data[0].embedding; // Add embedding to the node

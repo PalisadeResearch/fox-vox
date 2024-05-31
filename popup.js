@@ -15,7 +15,7 @@ if (!window.name) {
     window.name = generateUUID();
 }
 
-document.getElementById("openAIKey").addEventListener("input", function() {
+document.getElementById("openAIKey").addEventListener("input", function () {
     const apiKey = document.getElementById("openAIKey").value;
     if (apiKey) {
         localStorage.setItem("OpenAI_API_KEY", apiKey);
@@ -23,14 +23,16 @@ document.getElementById("openAIKey").addEventListener("input", function() {
     } else {
         document.getElementById("status").textContent = "Please enter a valid API key.";
     }
-    setTimeout(() => { document.getElementById("status").textContent = ''; }, 2000);
+    setTimeout(() => {
+        document.getElementById("status").textContent = '';
+    }, 2000);
 });
 
 function getApiKey() {
     return localStorage.getItem("OpenAI_API_KEY");
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const apiKeyInput = document.getElementById('openAIKey');
 
     const storedApiKey = getApiKey()
@@ -102,7 +104,7 @@ async function updateLabelsWithCacheStatus(hostname) {
 window.templatesArr = templatesArr;
 window.chosenTemplate = templatesArr[0];
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     let radio_container = document.getElementById('radio-container');
     let generateButton = document.getElementById('generate');
 
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     let emojiIndex = 0;
     let emojiInterval;
 
-    getCurrentTabHostname(async function(hostname) {
+    getCurrentTabHostname(async function (hostname) {
         async function checkAndSetCachedStatus(templateName, span) {
             const dbName = `${DB_PREFIX}${hostname}_${templateName}`;
             const db = await openDatabase(dbName, PAIRED_STORE_NAME);
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const paired = await getAllData(db, PAIRED_STORE_NAME);
 
                 if (paired.length > 0) {
-                    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                         chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: paired});
                     });
                 } else {
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     const originalPaired = await getAllData(originalDb, PAIRED_STORE_NAME);
 
                     if (originalPaired.length > 0) {
-                        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                             chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: originalPaired});
                         });
                     }
@@ -197,55 +199,37 @@ document.addEventListener('DOMContentLoaded', async function() {
             const newDb = await openDatabase(dbName, PAIRED_STORE_NAME);
 
             chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
-                const activeTab = tabs[0].id;
+                let promise = new Promise(async (resolve) => {
+                    const clusterDbName = `${CLUSTER_DB_NAME_PREFIX}${hostname}`;
+                    const clusterDb = await openDatabase(clusterDbName, CLUSTER_STORE_NAME);
+                    let clusters = await getAllData(clusterDb, CLUSTER_STORE_NAME);
 
-                let injectionPromise = new Promise(async (resolve) => {
-                    chrome.tabs.sendMessage(activeTab, {ping: true}, async function (response) {
-                        if (response && response.pong) {
-                            resolve();
-                        } else {
-                            await chrome.scripting.executeScript({
-                                target: {tabId: activeTab},
-                                files: ["./contentScript.js"]
+                    if (!clusters.length) {
+                        chrome.tabs.sendMessage(tabs[0].id, {action: "fetchText"}, async function (response) {
+                            clusters = await cluster(response.nodes);
+                            console.log(clusters);
+                            clusters.forEach(cluster => {
+                                addData(clusterDb, CLUSTER_STORE_NAME, cluster);
                             });
+
+                            // Generate original paired data and save to original database
+                            const originalPaired = clusters.flatMap(clusterArray =>
+                                clusterArray.map(cluster => ({
+                                    id: generateUUID(),
+                                    xpath: cluster.xpath,
+                                    text: cluster.innerHTML
+                                }))
+                            );
+
+                            const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
+                            const originalDb = await openDatabase(originalDbName, PAIRED_STORE_NAME);
+                            originalPaired.forEach(p => addData(originalDb, PAIRED_STORE_NAME, p));
+
                             resolve();
-                        }
-                    });
-                });
-
-                injectionPromise.then(async () => {
-                    let promise = new Promise(async (resolve) => {
-                        const clusterDbName = `${CLUSTER_DB_NAME_PREFIX}${hostname}`;
-                        const clusterDb = await openDatabase(clusterDbName, CLUSTER_STORE_NAME);
-                        let clusters = await getAllData(clusterDb, CLUSTER_STORE_NAME);
-
-                        if (!clusters.length) {
-                            chrome.tabs.sendMessage(tabs[0].id, {action: "fetchText"}, async function (response) {
-                                clusters = await cluster(response.nodes);
-                                console.log(clusters);
-                                clusters.forEach(cluster => {
-                                    addData(clusterDb, CLUSTER_STORE_NAME, cluster);
-                                });
-
-                                // Generate original paired data and save to original database
-                                const originalPaired = clusters.flatMap(clusterArray =>
-                                    clusterArray.map(cluster => ({
-                                        id: generateUUID(),
-                                        xpath: cluster.xpath,
-                                        text: cluster.text
-                                    }))
-                                );
-
-                                const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
-                                const originalDb = await openDatabase(originalDbName, PAIRED_STORE_NAME);
-                                originalPaired.forEach(p => addData(originalDb, PAIRED_STORE_NAME, p));
-
-                                resolve();
-                            });
-                        } else {
-                            resolve();
-                        }
-                    });
+                        });
+                    } else {
+                        resolve();
+                    }
 
                     promise.then(async () => {
                         const clusterDbName = `${CLUSTER_DB_NAME_PREFIX}${hostname}`;
@@ -255,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         console.log(clusters);
                         let promises = clusters.map(async cluster => {
                             window.OpenAI_API_KEY = getApiKey();
-                            const generation = await CoT(window.chosenTemplate, cluster.map(node => node.text).join('\n\n'));
+                            const generation = await CoT(window.chosenTemplate, cluster.map(node => node.innerHTML).join('\n\n'));
                             console.log(generation);
 
                             const paired = generation.nodes

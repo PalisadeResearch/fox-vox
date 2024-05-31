@@ -13,8 +13,8 @@ async function generateCompletion(context) {
                 "type": "function",
                 "function": {
                     "name": "output",
-                    "description": "Output the list of texts, with the newly generated text" +
-                        "each associated with one of the original text blocks and in the same order.",
+                    "description": "Output the list of nodes, with the newly generated html, including text and 'a' and 'b' blocks," +
+                        "each associated with one of the original html blocks and in the same order.",
                     "parameters": {
                         "type": "object",
                         "properties": {
