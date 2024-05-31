@@ -75,4 +75,5 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 window.addEventListener('beforeunload', async () => {
     await chrome.runtime.sendMessage({action: 'pageRefreshed'});
+    await new Promise(resolve => setTimeout(resolve, 1000));
 });
