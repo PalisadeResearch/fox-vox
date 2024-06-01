@@ -13,16 +13,30 @@ async function generateCompletion(context) {
                 "type": "function",
                 "function": {
                     "name": "output",
-                    "description": "Output the list of nodes, with the newly generated html, including text and 'a' and 'b' blocks," +
-                        "each associated with one of the original html blocks and in the same order.",
+                    "description": "Output HTML where the inner text content, like text inside 'p' tags, " +
+                        "was regenerated according to the prompt, but the html structure remains the same",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "nodes": {
                                 "type": "array",
-                                "description": "The list of all text blocks, where each item is the text corresponding to a text block",
+                                "description": "Each item of the array is the full HTML as in the original," +
+                                    "but with inner text content regenerated according to your prompt," +
+                                    "outputted in the same order as they were in the original input, where they were split by" +
+                                    "separator --###--, accompanied by the associated xpath that was listed right after the separator",
                                 "items": {
-                                    "type": "string",
+                                    "type": "object",
+                                    "description": "Item is an object with two parameters. " +
+                                        "'html' holds the final edited HTML " +
+                                        "'xpath' holds the xpath that was attached to the original at the top of the block below the separator, like a header.",
+                                    "properties": {
+                                        "html": {
+                                            "type": "string"
+                                        },
+                                        "xpath": {
+                                            "type": "string"
+                                        }
+                                    }
                                 },
                             },
 
@@ -46,9 +60,11 @@ export async function CoT(template, original) {
 
         const final_completion = await generateCompletion([template.generation, ...messages]);
 
-        return Hjson.parse(final_completion.choices[0].message.tool_calls[0].function.arguments);
+        const final = Hjson.parse(final_completion.choices[0].message.tool_calls[0].function.arguments);
+        console.log([original, final])
+        return final
     } catch (error) {
         console.error('Error occurred during CoT: ', error);
-        return { nodes: [] };
+        return { nodes: [[]] };
     }
 }

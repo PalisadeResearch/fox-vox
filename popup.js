@@ -4,17 +4,6 @@ import {cluster} from "./cluster.js";
 import templates from './config.json';
 import {addData, getAllData, openDatabase} from './indexedDB.js';
 
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-if (!window.name) {
-    window.name = generateUUID();
-}
-
 document.getElementById("openAIKey").addEventListener("input", function () {
     const apiKey = document.getElementById("openAIKey").value;
     if (apiKey) {
@@ -45,7 +34,7 @@ const DB_PREFIX = 'templateDatabase_';
 const CLUSTER_DB_NAME_PREFIX = 'clustersDatabase_';
 const ORIGINAL_DB_NAME_PREFIX = 'originalDatabase_';
 const CLUSTER_STORE_NAME = 'clusters';
-const PAIRED_STORE_NAME = 'paired';
+const NODE_STORE_NAME = 'paired';
 
 function getCurrentTabHostname(callback) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -93,10 +82,10 @@ async function updateLabelsWithCacheStatus(hostname) {
         const template = templatesArr[index];
         const span = document.querySelector(`label[for='view-${index}'] span`);
         const dbName = `${DB_PREFIX}${hostname}_${template.name}`;
-        const db = await openDatabase(dbName, PAIRED_STORE_NAME);
-        const paired = await getAllData(db, PAIRED_STORE_NAME);
+        const db = await openDatabase(dbName, NODE_STORE_NAME);
+        const nodes = await getAllData(db, NODE_STORE_NAME);
         if (span) {
-            span.innerText = paired.length > 0 ? `${template.name} ✅` : template.name;
+            span.innerText = nodes.length > 0 ? `${template.name} ✅` : template.name;
         }
     }
 }
@@ -115,8 +104,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     getCurrentTabHostname(async function (hostname) {
         async function checkAndSetCachedStatus(templateName, span) {
             const dbName = `${DB_PREFIX}${hostname}_${templateName}`;
-            const db = await openDatabase(dbName, PAIRED_STORE_NAME);
-            const paired = await getAllData(db, PAIRED_STORE_NAME);
+            const db = await openDatabase(dbName, NODE_STORE_NAME);
+            const paired = await getAllData(db, NODE_STORE_NAME);
             if (paired.length > 0) {
                 span.innerText += ' ✅';
             }
@@ -152,22 +141,25 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.log(window.chosenTemplate.generation);
 
                 const dbName = `${DB_PREFIX}${hostname}_${template.name}`;
-                const db = await openDatabase(dbName, PAIRED_STORE_NAME);
-                const paired = await getAllData(db, PAIRED_STORE_NAME);
+                const db = await openDatabase(dbName, NODE_STORE_NAME);
+                const nodes = await getAllData(db, NODE_STORE_NAME);
 
-                if (paired.length > 0) {
+                if (nodes.length > 0) {
                     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                        chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: paired});
+                        nodes.forEach(node => {
+                            chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: node});
+                        })
                     });
                 } else {
-                    // Post original content if no cached content is found
-                    const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
-                    const originalDb = await openDatabase(originalDbName, PAIRED_STORE_NAME);
-                    const originalPaired = await getAllData(originalDb, PAIRED_STORE_NAME);
+                    const original_db_name = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
+                    const original_node_db = await openDatabase(original_db_name, NODE_STORE_NAME);
+                    const original_nodes = await getAllData(original_node_db, NODE_STORE_NAME);
 
-                    if (originalPaired.length > 0) {
+                    if (original_nodes.length > 0) {
                         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                            chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: originalPaired});
+                            original_nodes.forEach(node => {
+                                chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: node});
+                            })
                         });
                     }
                 }
@@ -193,10 +185,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Start the emoji animation
             startEmojiAnimation();
 
-            const dbName = `${DB_PREFIX}${hostname}_${window.chosenTemplate.name}`;
-            await clearObjectStore(dbName, PAIRED_STORE_NAME);
-
-            const newDb = await openDatabase(dbName, PAIRED_STORE_NAME);
+            const db_name = `${DB_PREFIX}${hostname}_${window.chosenTemplate.name}`;
+            await clearObjectStore(db_name, NODE_STORE_NAME);
+            const db = await openDatabase(db_name, NODE_STORE_NAME);
 
             chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
                 let promise = new Promise(async (resolve) => {
@@ -207,23 +198,21 @@ document.addEventListener('DOMContentLoaded', async function () {
                     if (!clusters.length) {
                         chrome.tabs.sendMessage(tabs[0].id, {action: "fetchText"}, async function (response) {
                             clusters = await cluster(response.nodes);
-                            console.log(clusters);
                             clusters.forEach(cluster => {
                                 addData(clusterDb, CLUSTER_STORE_NAME, cluster);
                             });
 
                             // Generate original paired data and save to original database
-                            const originalPaired = clusters.flatMap(clusterArray =>
+                            const original_nodes = clusters.flatMap(clusterArray =>
                                 clusterArray.map(cluster => ({
-                                    id: generateUUID(),
                                     xpath: cluster.xpath,
-                                    text: cluster.innerHTML
+                                    html: cluster.innerHTML
                                 }))
                             );
 
                             const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
-                            const originalDb = await openDatabase(originalDbName, PAIRED_STORE_NAME);
-                            originalPaired.forEach(p => addData(originalDb, PAIRED_STORE_NAME, p));
+                            const originalDb = await openDatabase(originalDbName, NODE_STORE_NAME);
+                            original_nodes.forEach(node => addData(originalDb, NODE_STORE_NAME, node));
 
                             resolve();
                         });
@@ -239,32 +228,27 @@ document.addEventListener('DOMContentLoaded', async function () {
                         console.log(clusters);
                         let promises = clusters.map(async cluster => {
                             window.OpenAI_API_KEY = getApiKey();
-                            const generation = await CoT(window.chosenTemplate, cluster.map(node => node.innerHTML).join('\n\n'));
-                            console.log(generation);
+                            const nodes = (await CoT(window.chosenTemplate, cluster.map(node =>
+                                `${node.xpath}\n\n${node.innerHTML}`).join('\n\n--###--\n\n'))).nodes;
+                            console.log(nodes);
 
-                            const paired = generation.nodes
-                                .filter((_, index) => cluster[index])
-                                .map((text, index) => ({
-                                    id: generateUUID(),
-                                    xpath: cluster[index].xpath,
-                                    text: text
-                                }));
-
-                            console.log(paired);
-
-                            // Post as soon as the new paired is created
-                            if (paired) {
-                                chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: paired});
+                            for (let node of nodes) {
+                                await new Promise((resolve, reject) => {
+                                    chrome.tabs.sendMessage(tabs[0].id, {action: "postText", data: node}, function (response) {
+                                        if(chrome.runtime.lastError) {
+                                            reject(chrome.runtime.lastError);
+                                        } else {
+                                            resolve(response);
+                                        }
+                                    });
+                                });
+                                addData(db, NODE_STORE_NAME, node);
                             }
 
-                            // Save paired data to IndexedDB
-                            paired.forEach(p => addData(newDb, PAIRED_STORE_NAME, p));
-
-                            return paired;
+                            resolve();
                         });
 
-                        // Await all promises
-                        const nodes = await Promise.all(promises);
+                        await Promise.all(promises);
 
                         console.log("Posted text!");
 
@@ -289,7 +273,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
 
                 const originalDbName = `${ORIGINAL_DB_NAME_PREFIX}${hostname}`;
-                clearObjectStore(originalDbName, PAIRED_STORE_NAME).then(() => {
+                clearObjectStore(originalDbName, NODE_STORE_NAME).then(() => {
                     console.log(`Cleared object store ${CLUSTER_STORE_NAME} in database ${originalDbName}`);
                 }).catch((error) => {
                     console.error(`Failed to clear object store ${CLUSTER_STORE_NAME} in database ${originalDbName}:`, error);
@@ -297,10 +281,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 const templateDatabases = templatesArr.map(template => `${DB_PREFIX}${hostname}_${template.name}`);
                 templateDatabases.forEach(dbName => {
-                    clearObjectStore(dbName, PAIRED_STORE_NAME).then(() => {
-                        console.log(`Cleared object store ${PAIRED_STORE_NAME} in database ${dbName}`);
+                    clearObjectStore(dbName, NODE_STORE_NAME).then(() => {
+                        console.log(`Cleared object store ${NODE_STORE_NAME} in database ${dbName}`);
                     }).catch((error) => {
-                        console.error(`Failed to clear object store ${PAIRED_STORE_NAME} in database ${dbName}:`, error);
+                        console.error(`Failed to clear object store ${NODE_STORE_NAME} in database ${dbName}:`, error);
                     });
                 });
 
