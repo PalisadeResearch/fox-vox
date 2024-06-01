@@ -1,13 +1,87 @@
-let skippedNodes = [];
+let nodeWeightCache = new Map();
 
-/**
- * Generates an XPath for any node in the document.
- * @param {Node} node - The node to generate an XPath for.
- * @return {string} An absolute XPath to the node.
- */
+const TEXT_BOUNDARY_MIN = 30;
+const TEXT_BOUNDARY_MAX = 300;
 
-const TEXT_BOUNDARY = 200
-const CONTEXT_BOUNDARY = 40
+function calculateWeight(node) {
+    if (nodeWeightCache.has(node)) {
+        return nodeWeightCache.get(node);
+    }
+
+    let htmlWeight = 0;
+    let contentWeight = 0;
+
+    if (node.nodeType === Node.TEXT_NODE) {
+        contentWeight = node.textContent.length;
+        htmlWeight = 0;
+    } else {
+        Array.from(node.childNodes).forEach(child => {
+            const { htmlWeight: childHtmlWeight, contentWeight: childContentWeight } = calculateWeight(child);
+            htmlWeight += childHtmlWeight;
+            contentWeight += childContentWeight;
+        });
+        try {
+            if(node.outerHTML && node.innerHTML) {
+                htmlWeight += node.outerHTML.length - node.innerHTML.length;
+            }
+        } catch (error) {
+            console.warn(node, error);
+        }}
+
+    const result = { htmlWeight, contentWeight };
+    nodeWeightCache.set(node, result);
+    return result;
+}
+
+function sigmoid(x, a = 1) {
+    return 1 / (1 + Math.exp(-a * (x - 0.5)));
+}
+
+function shouldMoveToChildren(parentWeight, childrenWeights) {
+    const { htmlWeight: parentHtmlWeight, contentWeight: parentContentWeight } = parentWeight;
+    const totalChildHtmlWeight = childrenWeights.reduce((sum, weight) => sum + weight.htmlWeight, 0);
+    const totalChildContentWeight = childrenWeights.reduce((sum, weight) => sum + weight.contentWeight, 0);
+
+    const htmlWeightReduction = parentHtmlWeight - totalChildHtmlWeight;
+    const contentWeightLoss = parentContentWeight - totalChildContentWeight;
+
+    // Adjust the sigmoid curve to prioritize differently based on the HTML weight
+    const htmlWeightFactor = sigmoid(parentHtmlWeight / 500, 10); // Adjust '10' for steepness
+    const contentWeightFactor = sigmoid(1 - (totalChildContentWeight / parentContentWeight), 10);
+
+    const weightedHtmlWeightReduction = htmlWeightReduction * htmlWeightFactor;
+    const weightedContentWeightLoss = contentWeightLoss * contentWeightFactor;
+
+    return totalChildContentWeight >= TEXT_BOUNDARY_MIN && weightedHtmlWeightReduction > weightedContentWeightLoss;
+}
+
+function optimizeTraversal(node) {
+    let bestNodes = [];
+
+    function traverse(node) {
+        const { htmlWeight, contentWeight } = calculateWeight(node);
+
+        if (!node.children || node.children.length === 0) {
+            if (contentWeight >= TEXT_BOUNDARY_MIN) {
+                bestNodes.push(node);
+            }
+            return;
+        }
+
+        const childrenWeights = Array.from(node.children).map(child => calculateWeight(child));
+
+        if (shouldMoveToChildren({ htmlWeight, contentWeight }, childrenWeights)) {
+            Array.from(node.children).forEach(child => traverse(child));
+        } else {
+            if (contentWeight >= TEXT_BOUNDARY_MIN) {
+                bestNodes.push(node);
+            }
+        }
+    }
+
+    traverse(node);
+    return bestNodes;
+}
 
 function getXPathFor(node) {
     var parts = [];
@@ -15,11 +89,8 @@ function getXPathFor(node) {
     for (; node && node.nodeType === Node.ELEMENT_NODE; node = node.parentNode) {
         var index = 0;
         for (var sibling = node.previousSibling; sibling; sibling = sibling.previousSibling) {
-            // Ignore document type declaration.
-            if (sibling.nodeType === Node.DOCUMENT_TYPE_NODE)
-                continue;
-            if (sibling.nodeName === node.nodeName)
-                ++index;
+            if (sibling.nodeType === Node.DOCUMENT_TYPE_NODE) continue;
+            if (sibling.nodeName === node.nodeName) ++index;
         }
 
         var nodeName = node.nodeName.toLowerCase();
@@ -30,33 +101,11 @@ function getXPathFor(node) {
     return parts.length > 0 ? '/' + parts.join('/') : '';
 }
 
-let nodeSizeCache = new Map();
-
-function calculateSize(node) {
-    if (nodeSizeCache.has(node)) {
-        return nodeSizeCache.get(node);
-    }
-
-    let result;
-
-    if (node.nodeType === Node.TEXT_NODE) {
-        result = node.textContent.length;
-    } else {
-        result = Array.from(node.childNodes)
-            .reduce((sum, child) => sum + calculateSize(child), 0);
-    }
-
-    nodeSizeCache.set(node, result);
-    return result;
-}
-
 function iterate(startNode) {
-    let queue = [startNode];
     let nodes = [];
 
     function push(node) {
         let rect = node.getBoundingClientRect();
-        if (!node.textContent || node.textContent.length < CONTEXT_BOUNDARY) { return }
         nodes.push({
             xpath: getXPathFor(node),
             layout: {
@@ -72,29 +121,10 @@ function iterate(startNode) {
         });
     }
 
-    while (queue.length > 0) {
-        let node = queue.shift();
-        let size = calculateSize(node);
+    const bestNodes = optimizeTraversal(startNode);
+    bestNodes.forEach(node => push(node));
 
-        if (size > TEXT_BOUNDARY && node.children) {
-            let isSpecialTag = Array.from(node.children).every(child =>
-                child.nodeType === Node.TEXT_NODE ||
-                ['a', 'b', 'strong'].includes(child.tagName.toLowerCase())
-            );
-
-            if (isSpecialTag) {
-                push(node);
-            } else {
-                let nonScriptChildren = Array.from(node.children)
-                    .filter(child => child.tagName.toLowerCase() !== 'script' && child.offsetWidth !== 0 && child.offsetHeight !== 0);
-                queue.push(...nonScriptChildren);
-            }
-        } else {
-            push(node);
-        }
-    }
-
-    console.log(nodeSizeCache)
+    console.log(nodes)
     return nodes;
 }
 
