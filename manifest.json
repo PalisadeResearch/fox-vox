@@ -12,13 +12,15 @@
       "128": "icons/icon128.png"
     }
   },
+  "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.bundle.js"
   },
-  "content_scripts": [
+  "web_accessible_resources": [
     {
+      "resources": ["config.json"],
       "matches": ["<all_urls>"],
-      "js": ["contentScript.js"]
+      "extension_ids": ["*"]
     }
   ]
 }
