@@ -93,6 +93,9 @@
             border-radius: 4px;
             width: 100%;
         }
+        .hidden {
+            display: none;
+        }
         button:hover {
             background-color: #870291;
         }
@@ -112,7 +115,7 @@
     <h2>Choose agenda:</h2>
     <div id="radio-container" class="radio-container"></div>
     <button id="generate-button">Rewrite the website!</button>
-    <button id="clear-cache">Clear cache</button>
+    <button class="hidden" id="clear-cache">Clear cache</button>
 </div>
 <script type="module" src="popup.js"></script>
 </body>

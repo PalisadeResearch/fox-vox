@@ -29,7 +29,7 @@ export function open_indexDB(name, templates) {
         };
 
         request.onsuccess = function (event) {
-            console.log('DB Open Success!');
+            console.log('DB Open Success! Name:', name);
             event.target.result.close();
             resolve();
         };
@@ -146,6 +146,44 @@ export function delete_indexDB(name) {
         deleteReq.onsuccess = function(event) {
             console.log('Database deleted successfully');
             resolve();
+        };
+    });
+}
+
+export function clear_object_stores(db_name) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(db_name);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(db.objectStoreNames, 'readwrite');
+
+            let requests = [];
+
+            for (let i = 0; i < db.objectStoreNames.length; i++) {
+                const store = transaction.objectStore(db.objectStoreNames[i]);
+                requests.push(new Promise((res, rej) => {
+                    const request = store.clear();
+                    request.onsuccess = res;
+                    request.onerror = rej;
+                }));
+            }
+
+            Promise.all(requests)
+                .then(() => {
+                    console.log('All object stores cleared');
+                    db.close();
+                    resolve();
+                })
+                .catch(e => {
+                    console.error('Error clearing object stores: ', e);
+                    reject(e);
+                });
+        };
+
+        request.onerror = function(event) {
+            console.error('Error opening database: ', event.target.error);
+            reject(event.target.error);
         };
     });
 }

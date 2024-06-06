@@ -3,7 +3,7 @@
   "name": "FoxVox",
   "version": "1.2",
   "description": "Provided with OpenAI API key, rewrites any website to look like something else!",
-  "permissions": ["storage", "tabs", "scripting", "activeTab"],
+  "permissions": ["storage", "tabs", "webNavigation", "scripting", "activeTab"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

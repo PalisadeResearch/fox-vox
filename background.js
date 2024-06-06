@@ -1,6 +1,8 @@
-import {delete_indexDB, fetch_from_object_store, open_indexDB, push_to_object_store} from "./database.js";
+import {clear_object_stores, fetch_from_object_store, open_indexDB, push_to_object_store} from "./database.js";
 import {cluster} from "./cluster.js";
 import {CoT} from "./generation.js";
+
+let loading = {};
 
 function fetch() {
     const TEXT_BOUNDARY_MIN = 20;
@@ -174,11 +176,9 @@ async function* generate(clusters, template, openai) {
         return generation;
     });
 
-    for (const promise of promises)
-    {
+    for (const promise of promises) {
         const generation = await promise;
-        if (generation)
-        {
+        if (generation) {
             yield generation;
         }
     }
@@ -190,23 +190,204 @@ SETUP
 --###--
 */
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.webNavigation.onCompleted.addListener(async function(details){
+    if(details.frameId === 0) {
+        const url = new URL(details.url).hostname + new URL(details.url).pathname;
+        let hash;
+        console.log("Page refreshed:", url)
+        try {
+            hash = await chrome.scripting.executeScript({
+                target: {tabId: details.tabId},
+                func: function(){
+                    const bodyHTML = document.body.outerHTML;
+
+                    // The SubtleCrypto API works with ArrayBuffer, so we need to encode our string into UTF-8
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(bodyHTML);
+
+                    // Calculate the SHA-256 hash
+                    return crypto.subtle.digest('SHA-256', data)
+                        .then(hashBuffer => {
+                            // Convert the ArrayBuffer to string
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        });
+                },
+            });
+
+            if(hash && hash.length > 0){
+                hash = hash[0].result;
+
+                let result = await new Promise((resolve) => {
+                    chrome.storage.local.get(['hash_' + url], function(result){
+                        resolve(result);
+                    });
+                });
+
+                if(result['hash_'+url] === hash){
+                    console.log('Hashes match. Skipping cache invalidation...');
+                } else {
+                    try{
+                        await clear_object_stores(url);
+                        let obj = {};
+                        obj['hash_'+url] = hash;
+
+                        await new Promise((resolve) => {
+                            chrome.storage.local.set(obj, function() {
+                                console.log('Hash for', url, 'saved:', hash);
+                                resolve();
+                            });
+                        });
+                    } catch(e){
+                        console.error('The popup was not opened for this page yet');
+                    }
+                }
+            }
+        } catch(e) {
+            console.warn(e.message || e);
+        }
+    }
+
+    console.log("CACHE INVALIDATION FINISHED")
+    loading[details.tabId] = false;
+});
+chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
+    loading[details.tabId] = true;
+    console.log("NAVIGATION INITIATED")
+
+    chrome.runtime.sendMessage({
+        action: "close_popup",
+    });
+});
+
+
+function push_cached_template(request) {
+    fetch_from_object_store(request.url, 'original').then(original_nodes => {
+        console.log("Original Nodes:", original_nodes)
+        original_nodes.forEach(async original_node => {
+            const xpath = original_node.xpath;
+            const html = original_node.innerHTML;
+
+            const func = function (xpath, html) {
+                const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                if (node) {
+                    node.innerHTML = html;
+                } else {
+                    console.log(`No element matches the provided XPath: ${xpath}`);
+                }
+            }
+
+            await chrome.scripting.executeScript({
+                target: {tabId: request.id},
+                function: func,
+                args: [xpath, html]
+            });
+
+        });
+    });
+
+    console.log("Original pushed...")
+
+    console.log("Fetching template", request.template.name)
+    // Then fetch and push the chosen template
+    fetch_from_object_store(request.url, request.template.name).then(nodes => {
+        console.log("Template Nodes:", nodes)
+        nodes.forEach(async node => {
+            const xpath = node.xpath;
+            const html = node.html;
+
+            const func = function (xpath, html) {
+                const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                if (node) {
+                    node.innerHTML = html;
+                } else {
+                    console.log(`No element matches the provided XPath: ${xpath}`);
+                }
+            }
+
+            await chrome.scripting.executeScript({
+                target: {tabId: request.id},
+                function: func,
+                args: [xpath, html]
+            });
+
+        });
+    });
+}
+
+async function process_request(request) {
     if (request.action === "setup") {
         console.log('Setting up ...')
-        open_indexDB(request.url, Object.values(request.templates).map(template => template.name)).then(() => {
-            fetch_from_object_store(request.url, 'original')
-                .then(async original => {
-                    console.log('Fetched original data')
-                    if (original?.length > 0) {
-                        console.log("original:", original)
-                        fetch_from_object_store(request.url, 'clusters')
-                            .then(clusters => {
-                                console.log('Fetched clusters data')
-                                if (clusters?.length > 0) {
-                                    console.log("clusters:", clusters)
-                                } else {
-                                    // cluster the original data
-                                    cluster(original).then(clusters => {
+        open_indexDB(request.url, Object.values(request.templates).map(template => template.name)).then(async () => {
+                // For each template, check whether its content is cached
+                for (let template of Object.values(request.templates)) {
+                    fetch_from_object_store(request.url, template.name).then(nodes => {
+                        // If content is cached send "template_cached" message
+                        if (nodes && nodes.length > 0) {
+                            chrome.runtime.sendMessage({
+                                action: "template_cached",
+                                template_name: template.name
+                            });
+                        }
+                        // If no content is cached send "cache_deleted" message
+                        else {
+                            chrome.runtime.sendMessage({
+                                action: "cache_deleted",
+                                template_name: template.name
+                            });
+                        }
+                    })
+                        .catch(err => {
+                            console.error('Error checking cache for template', template.name, ':', err);
+                        });
+                }
+
+                fetch_from_object_store(request.url, 'original')
+                    .then(async original => {
+                        console.log('Fetched original data')
+                        if (original?.length > 0) {
+                            console.log("original:", original)
+                            fetch_from_object_store(request.url, 'clusters')
+                                .then(clusters => {
+                                    console.log('Fetched clusters data')
+                                    if (clusters?.length > 0) {
+                                        console.log("clusters:", clusters)
+                                    } else {
+                                        // cluster the original data
+                                        cluster(original).then(clusters => {
+                                            console.log("clusters:", clusters)
+                                            // save clusters to object store
+                                            push_to_object_store(request.url, 'clusters', clusters)
+                                                .then(() => {
+                                                    // successful operation here
+                                                    console.log('Clusters added successfully.');
+                                                })
+                                                .catch(console.error);
+                                        });
+                                    }
+                                })
+                                .catch(console.error);
+                        } else {
+                            console.log('Retrieving text ...')
+                            let result;
+                            try {
+                                result = await chrome.scripting.executeScript({
+                                    target: {tabId: request.id},
+                                    func: fetch
+                                });
+                            } catch (e) {
+                                console.warn(e.message || e);
+                                return;
+                            }
+                            const nodes = result[0].result
+                            push_to_object_store(request.url, 'original', nodes)
+                                .then(() => {
+                                    // successful operation here
+                                    console.log('Original added successfully.');
+                                    // cluster the data from response
+                                    cluster(nodes).then(clusters => {
                                         console.log("clusters:", clusters)
                                         // save clusters to object store
                                         push_to_object_store(request.url, 'clusters', clusters)
@@ -216,50 +397,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                                             })
                                             .catch(console.error);
                                     });
-                                }
-                            })
-                            .catch(console.error);
-                    } else {
-                        console.log('Retrieving text ...')
-                        let result;
-                        try {
-                            result = await chrome.scripting.executeScript({
-                                target: {tabId: request.id},
-                                func: fetch
-                            });
-                        } catch (e) {
-                            console.warn(e.message || e);
-                            return;
+                                })
+                                .catch(console.error);
                         }
-                        const nodes = result[0].result
-                        console.log("original:", original)
-                        push_to_object_store(request.url, 'original', nodes)
-                            .then(() => {
-                                // successful operation here
-                                console.log('Original added successfully.');
-                                // cluster the data from response
-                                cluster(nodes).then(clusters => {
-                                    console.log("clusters:", clusters)
-                                    // save clusters to object store
-                                    push_to_object_store(request.url, 'clusters', clusters)
-                                        .then(() => {
-                                            // successful operation here
-                                            console.log('Clusters added successfully.');
-                                        })
-                                        .catch(console.error);
-                                });
-                            })
-                            .catch(console.error);
-                    }
-                })
-                .catch(console.error);
-        });
-
-        let obj = {};
-        obj['template_' + request.url] = Object.values(request.templates)[0];
-        chrome.storage.local.set(obj, function () {
-            console.log('Template for', request.url, 'saved:', Object.values(request.templates)[0]);
-        });
+                    })
+                    .catch(console.error);
+            }
+        );
     }
 
     if (request.action === "set_template") {
@@ -269,64 +413,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             console.log('Template for', request.url, 'saved:', request.template);
 
             // Always fetch and push 'original' first
-            fetch_from_object_store(request.url, 'original').then(original_nodes => {
-                console.log("Original Nodes:", original_nodes)
-                original_nodes.forEach(async original_node => {
-                    const xpath = original_node.xpath;
-                    const html = original_node.innerHTML;
-
-                    const func = function (xpath, html) {
-                        const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-                        if (node) {
-                            node.innerHTML = html;
-                        } else {
-                            console.log(`No element matches the provided XPath: ${xpath}`);
-                        }
-                    }
-
-                    await chrome.scripting.executeScript({
-                        target: {tabId: request.id},
-                        function: func,
-                        args: [xpath, html]
-                    });
-
-                });
-            });
-
-            console.log("Original pushed...")
-
-            console.log("Fetching template", request.template.name)
-            // Then fetch and push the chosen template
-            fetch_from_object_store(request.url, request.template.name).then(nodes => {
-                console.log("Template Nodes:", nodes)
-                nodes.forEach(async node => {
-                    const xpath = node.xpath;
-                    const html = node.html;
-
-                    const func = function (xpath, html) {
-                        const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-                        if (node) {
-                            node.innerHTML = html;
-                        } else {
-                            console.log(`No element matches the provided XPath: ${xpath}`);
-                        }
-                    }
-
-                    await chrome.scripting.executeScript({
-                        target: {tabId: request.id},
-                        function: func,
-                        args: [xpath, html]
-                    });
-
-                });
-            });
+            push_cached_template(request);
         });
     }
 
     if (request.action === "clear-cache") {
-        delete_indexDB(request.url)
+        await clear_object_stores(request.url)
     }
 
     if (request.action === "push_openai_to_background") {
@@ -352,47 +444,86 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 
     if (request.action === "generate") {
-        fetch_from_object_store(request.url, 'clusters').then(async clusters => {
-            chrome.storage.local.get(['template_' + request.url, 'openai'], async function (result) {
-                if (result['template_' + request.url] && result['openai']) {
-                    let nodes = [];
-                    for await (const generation of generate(clusters, result['template_' + request.url], result['openai'])) {
-                        for (const node of generation) {
-                            nodes.push(node);
+        chrome.runtime.sendMessage({
+            action: "generation_initialized",
+        });
 
-                            const xpath = node.xpath;
-                            const html = node.html;
+        new Promise(async (resolve, reject) => {
+            try {
+                const clusters = await fetch_from_object_store(request.url, 'clusters');
+                chrome.storage.local.get(['template_' + request.url, 'openai'], async function (result) {
+                    if (result['template_' + request.url] && result['openai']) {
+                        let nodes = [];
+                        for await (const generation of generate(clusters, result['template_' + request.url], result['openai'])) {
+                            for (const node of generation) {
+                                nodes.push(node);
 
-                            const func = function (xpath, html) {
-                                const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                                const xpath = node.xpath;
+                                const html = node.html;
 
-                                if (node) {
-                                    node.innerHTML = html;
-                                } else {
-                                    console.log(`No element matches the provided XPath: ${xpath}`);
+                                const func = function (xpath, html) {
+                                    const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                                    if (node) {
+                                        node.innerHTML = html;
+                                    } else {
+                                        console.log(`No element matches the provided XPath: ${xpath}`);
+                                    }
                                 }
+
+                                chrome.scripting.executeScript({
+                                    target: {tabId: request.id},
+                                    function: func,
+                                    args: [xpath, html]
+                                });
                             }
-
-                            chrome.scripting.executeScript({
-                                target: {tabId: request.id},
-                                function: func,
-                                args: [xpath, html]
-                            });
                         }
+
+                        if (nodes.length > 0) {
+                            await push_to_object_store(request.url, result['template_' + request.url].name, nodes)
+                        }
+
+                        console.log("Page rewritten!...");
+                        resolve();
+                    } else {
+                        console.log('Cannot find required keys in local storage.');
+                        reject('Cannot find required keys in local storage.');
                     }
+                });
+            } catch (error) {
+                console.log('Error in processing:', error);
+                reject(error);
+            }
+        }).then(() => {
+            chrome.storage.local.get(['template_' + request.url], async function (result) {
+                chrome.runtime.sendMessage({
+                    action: "template_cached",
+                    template_name: result['template_' + request.url].name
+                });
+            });
 
-                    if (nodes.length > 0) {
-                        push_to_object_store(request.url, result['template_' + request.url].name, nodes)
-                    }
-
-                    console.log("Page rewritten!...")
-
-                } else {
-                    console.log('Cannot find required keys in local storage.');
-                }
+            chrome.runtime.sendMessage({
+                action: "generation_completed",
             });
         }).catch(error => {
-            console.log('Error fetching data from object store:', error);
+            console.log(`Error during generation: ${error}`);
+            // Handle any additional error processing here...
         });
     }
+}
+
+chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
+    if (request.id && loading[request.id]) {
+        let checkLoading = setInterval(async () => {
+            if (!loading[request.id]) {
+                clearInterval(checkLoading);
+                // Call the function to process the request after loading is finished.
+                await process_request(request, sender, sendResponse);
+            }
+        }, 100);
+    } else {
+        // Process the request immediately if not loading.
+        await process_request(request, sender, sendResponse);
+    }
+    return true; // Indicates that response function will be called asynchronously.
 });
