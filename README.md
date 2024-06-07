@@ -25,4 +25,12 @@ Potential of AI for disinformation is vast, and we don't have basic defences aga
 
 - Certificates for news aggregators and social media platforms that verify their integirty. 
 
+### How do I check it out myself?
+
+1. Visit our google web store page: _google web store link HERE_ 
+2. Download the chrome extension
+3. Go to your favourite news outlet
+4. Open the extension, choose a template, and click generate
+5. Enjoy!
+
 
