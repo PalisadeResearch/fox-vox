@@ -18,6 +18,10 @@ FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to 
 
 FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can be used to manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.  
 
-Potential of AI for disinformation is vast, and we don't have basic defences againsti it. We imply that development of AI technologies demands us to adopt new standards of content verification, including web content. 
+Potential of AI for disinformation is vast, and we don't have basic defences against it. We imply that development of AI technologies demands us to adopt new standards of content verification, including web content. These standards can include:
+
+- Page hash verifications that happen outside of browser context, allowing us to check if content of the page has been tempered with.
+
+- Certificates for news aggregators and social media platforms that verify their integirty. 
 
 
