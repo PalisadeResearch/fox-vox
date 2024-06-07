@@ -7,8 +7,8 @@ FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to 
 - **Pushing Political Agendas**: Effective propaganda often involves interpreting true facts to favor a specific viewpoint rather than spreading outright lies. AI models can generate high-quality news titles and articles en masse, making it easier for actors to flood the internet with politically charged content and sway public opinion more effectively than ever before.
 
 - **Manipulation of Reality**: Your perception of reality can be subtly manipulated without your knowledge. As more companies integrate AI models to generate, analyze, structure, or search for content, there is a lack of procedures or certifications to ensure these tools are used ethically. For example:
-  - A search engine could employ a biased AI model to present certain political views more favorably in search summaries.
-  - A browser extension might slightly alter code snippets on Stack Overflow, causing them to malfunction and prompting users to purchase the company's AI-powered code assistant.
+  -- A search engine could employ a biased AI model to present certain political views more favorably in search summaries.
+  -- A browser extension might slightly alter code snippets on Stack Overflow, causing them to malfunction and prompting users to purchase the company's AI-powered code assistant.
 
 - **Erosion of Trust**: If AI-generated content becomes ubiquitous and difficult to distinguish from genuine human-created content, and there are no in-place solutions to verify content, trusting content on the internet can become impossible. It could mean major mental harm and damage to wellbeing of internet users.
 
