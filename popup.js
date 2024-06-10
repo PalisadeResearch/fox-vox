@@ -122,6 +122,11 @@ export function setup(tab, url) {
 
         document.getElementById('clear-cache').addEventListener('click', async () => {
             chrome.runtime.sendMessage({action: "clear-cache", id: tab.id, url: url.hostname + url.pathname})
+            generate_button_state = {
+                isGenerating: false,
+                currentEmojiIndex: 0,
+                emojiInterval: 0
+            };
         });
 
         document.getElementById('openAIKey').addEventListener('input', function () {

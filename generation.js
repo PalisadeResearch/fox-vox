@@ -50,6 +50,7 @@ async function completion(openai, context) {
 export async function CoT(OpenAI_API_KEY, template, original) {
     try {
         console.log('Initializing OpenAI...');
+        console.log(OpenAI_API_KEY)
         const openai = new OpenAI({ apiKey: OpenAI_API_KEY, dangerouslyAllowBrowser: true });
         console.log('OpenAI initialized.');
         console.log('Starting chain of thought algorithm...');

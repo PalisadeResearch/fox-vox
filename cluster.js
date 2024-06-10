@@ -1,10 +1,8 @@
 import OpenAI from 'openai';
 
-const OPENAI_API_KEY="sk-proj-6AOj927d5Fqfv1h5zj7yT3BlbkFJIxrTT7TOuxcpWRNZGii3"
+const OPENAI_API_KEY="sk-proj-vrfVbh8tzIGLDbUiKXuZT3BlbkFJtknfSiRWnljVIX5dJvAc"
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true });
-
-async function generate_embeddings(nodes) {
+async function generate_embeddings(openai, nodes) {
     const promises = nodes.map((node, i) => {
         return openai.embeddings.create({
             model: 'text-embedding-3-large',
@@ -48,12 +46,13 @@ function adjustRadius(baseRadius, spatialDistance, adjustmentFactor = 1) {
     return baseRadius / (1 + adjustmentFactor * spatialDistance);
 }
 
-export async function cluster(nodes, semanticRadius = 1, spatialRadius = 300) {
-    console.log('Starting the clustering process...');
+export async function cluster(openai_key, nodes, semanticRadius = 1, spatialRadius = 300) {
+    console.log('Starting the clustering process... on', nodes);
     let clusters = [];
 
     console.log('Generating embeddings for nodes...');
-    let remainingNodes = await generate_embeddings(nodes);
+    const openai = new OpenAI({ apiKey: openai_key, dangerouslyAllowBrowser: true });
+    let remainingNodes = await generate_embeddings(openai, nodes);
     console.log('Embeddings successfully generated.');
 
     let clusterCount = 0;

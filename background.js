@@ -251,6 +251,7 @@ chrome.webNavigation.onCompleted.addListener(async function(details){
     console.log("CACHE INVALIDATION FINISHED")
     loading[details.tabId] = false;
 });
+
 chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
     loading[details.tabId] = true;
     console.log("NAVIGATION INITIATED")
@@ -319,7 +320,12 @@ function push_cached_template(request) {
 
 async function process_request(request) {
     if (request.action === "setup") {
+        let openai;
         console.log('Setting up ...')
+        chrome.storage.local.get('openai', function (result) {
+            openai = result['openai']
+        })
+
         open_indexDB(request.url, Object.values(request.templates).map(template => template.name)).then(async () => {
                 // For each template, check whether its content is cached
                 for (let template of Object.values(request.templates)) {
@@ -356,7 +362,7 @@ async function process_request(request) {
                                         console.log("clusters:", clusters)
                                     } else {
                                         // cluster the original data
-                                        cluster(original).then(clusters => {
+                                        cluster(openai, original).then(clusters => {
                                             console.log("clusters:", clusters)
                                             // save clusters to object store
                                             push_to_object_store(request.url, 'clusters', clusters)
@@ -387,7 +393,7 @@ async function process_request(request) {
                                     // successful operation here
                                     console.log('Original added successfully.');
                                     // cluster the data from response
-                                    cluster(nodes).then(clusters => {
+                                    cluster(openai, nodes).then(clusters => {
                                         console.log("clusters:", clusters)
                                         // save clusters to object store
                                         push_to_object_store(request.url, 'clusters', clusters)
@@ -517,12 +523,10 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
         let checkLoading = setInterval(async () => {
             if (!loading[request.id]) {
                 clearInterval(checkLoading);
-                // Call the function to process the request after loading is finished.
                 await process_request(request, sender, sendResponse);
             }
         }, 100);
     } else {
-        // Process the request immediately if not loading.
         await process_request(request, sender, sendResponse);
     }
     return true; // Indicates that response function will be called asynchronously.
