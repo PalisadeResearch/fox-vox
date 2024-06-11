@@ -16,6 +16,11 @@ FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to 
 
 - **Targeted Attacks**: Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. For instance, personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, AI system could target a specific person, collecting information about them throughout the web, and then making convincing and strategic phishing emails and calls.
 
+<video width="320" height="240" controls>
+  <source src="/docs/assets/Trump Rewritten.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ### What is the narrative? What do we propose to do?
 
 FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can be used to manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.  
