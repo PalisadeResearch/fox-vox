@@ -2,9 +2,15 @@
 
 FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to interactively demonstrate the capabilities of AI for **automated disinformation at scale**. Our goal is to show how AI can be used by malicious actors—such as large corporations, news websites, social media platforms, or hackers—to subtly alter the content you consume online without your awareness.
 
+With current capabilities of AI-models, you are one click away from making NYT sound like a journal on conspiracy theories ...
+
 ![NYT](/docs/assets/tg_image_1684397744.jpeg)
 
+Or from making stack overflow a collection of bad jokes ...
+
 ![SO](/docs/assets/tg_image_453700902.jpeg)
+
+And so much more!
 
 ### Why is this dangerous?
 
@@ -15,6 +21,12 @@ FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to 
 - **Untrustworthy Internet Content**: If AI-generated content becomes ubiquitous and difficult to distinguish from genuine human-created content, and there are no in-place solutions to verify content, trusting content on the internet can become impossible. 
 
 - **Targeted Attacks**: Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. For instance, personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, AI system could target a specific person, collecting information about them throughout the web, and then making convincing and strategic phishing emails and calls.
+
+### How fast and pricey one generation is? Can we make it even more convincing?
+
+Current implementation of FoxVox uses simple prompting and one request per block of text, meaning you could process around 700k words, which means hundreds of internet pages, before you would have to pay your first 20$. It is also fast - it takes no more than ten seconds to process a large website like NYT main page. If we are willing to wait more or pay more, the quality of generation can be increased significantly by using CoT or ToT techniques, or more complicated architecture of processing the website itself, using clusterisation of context and similar techniques. 
+
+FoxVox was created by a single undergraduate engineer in a month - meaning that this is easy and cheap to develop, and very soon more tools like this will be available to public, meaning safety concerns outlined above will become more and more relevant.
 
 ### What is the narrative? What do we propose to do?
 
