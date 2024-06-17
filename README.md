@@ -10,11 +10,6 @@ With current capabilities of AI-models, you are one click away from making NYT s
 
 # Image Comparison Slider
 
-<div class="twentytwenty-container">
-    <img src="/docs/assets/tg_image_453700902.jpeg" alt="Before">
-    <img src="/docs/assets/tg_image_1684397744.jpeg" alt="After">
-</div>
-
 ![NYT](/docs/assets/tg_image_1684397744.jpeg)
 
 Or from making stack overflow a collection of bad jokes ...
