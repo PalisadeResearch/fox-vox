@@ -4,13 +4,6 @@ FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to 
 
 With current capabilities of AI-models, you are one click away from making NYT sound like a journal on conspiracy theories ...
 
-# Image Comparison Slider
-
-<div class="twentytwenty-container">
-    <img src="/assets/tg_image_453700902.jpeg" alt="Before">
-    <img src="/assets/tg_image_1684397744.jpeg" alt="After">
-</div>
-
 ![NYT](/assets/tg_image_1684397744.jpeg)
 
 Or from making stack overflow a collection of bad jokes ...
