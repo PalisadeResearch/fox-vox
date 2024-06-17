@@ -102,7 +102,7 @@ export function push_to_object_store(db_name, store_name, data) {
                         const addRequest = store.add(item);
                         addRequest.onsuccess = () => resolve();
                         addRequest.onerror = (e) => {
-                            db.close();  // Close the DB connection before rejecting
+                            db.close();
                             reject(e.target.error);
                         };
                     });
@@ -156,6 +156,14 @@ export function clear_object_stores(db_name) {
 
         request.onsuccess = function(event) {
             const db = event.target.result;
+
+            if (!db.objectStoreNames.length) {
+                console.log('No object stores to clear');
+                db.close();
+                resolve();
+                return;
+            }
+
             const transaction = db.transaction(db.objectStoreNames, 'readwrite');
 
             let requests = [];

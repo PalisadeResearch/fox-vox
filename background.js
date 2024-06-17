@@ -1,8 +1,5 @@
 import {clear_object_stores, fetch_from_object_store, open_indexDB, push_to_object_store} from "./database.js";
-import {cluster} from "./cluster.js";
 import {CoT} from "./generation.js";
-
-let loading = {};
 
 function fetch() {
     const TEXT_BOUNDARY_MIN = 20;
@@ -26,7 +23,6 @@ function fetch() {
 
         let htmlWeight = 0;
         let contentWeight = 0;
-
 
         if (node.nodeType === 3) { //Checking if nodeType is TEXT_NODE
             contentWeight = node.textContent.length;
@@ -131,7 +127,7 @@ function fetch() {
 
     function validate_node(orig_node, node) {
         console.log([orig_node, node])
-        return orig_node.offsetWidth && orig_node.offsetHeight && node.innerHTML && node.plainText && orig_node.tagName !== 'SCRIPT'
+        return orig_node.innerText && orig_node.innerText.length > 40 && orig_node.offsetWidth && orig_node.offsetHeight && node.innerHTML && node.plainText && orig_node.tagName !== 'SCRIPT'
     }
 
     const root = document.body
@@ -167,19 +163,19 @@ Generation (DOESN'T WORK)
 --###--
 */
 
-async function* generate(clusters, template, openai) {
-    const promises = clusters.map(async cluster => {
-        console.log("CoT launched for cluster", cluster, "at", Date.now());
-        const original = cluster.map(node => `${node.xpath}\n\n${node.innerHTML}`).join('\n\n--###--\n\n');
+async function* generate(nodes, template, openai) {
+    const promises = nodes.map(async node => {
+        console.log("CoT launched for node", node, "at", Date.now(), "with template", template.generation);
+        const original = node.innerHTML;
         const generation = await CoT(openai, template, original);
-        console.log("CoT finished for cluster", cluster, "at", Date.now(), "with result:", generation);
-        return generation;
+        console.log("CoT finished for node", node, "at", Date.now(), "with result:", generation);
+        return {xpath: node.xpath, html: generation};
     });
 
     for (const promise of promises) {
-        const generation = await promise;
-        if (generation) {
-            yield generation;
+        const completion = await promise;
+        if (completion.html) {
+            yield completion;
         }
     }
 }
@@ -190,75 +186,14 @@ SETUP
 --###--
 */
 
-chrome.webNavigation.onCompleted.addListener(async function(details){
-    if(details.frameId === 0) {
-        const url = new URL(details.url).hostname + new URL(details.url).pathname;
-        let hash;
-        console.log("Page refreshed:", url)
-        try {
-            hash = await chrome.scripting.executeScript({
-                target: {tabId: details.tabId},
-                func: function(){
-                    const bodyHTML = document.body.outerHTML;
+chrome.webNavigation.onCompleted.addListener(async function (details) {
+    if (details.frameId === 0) {
+        await clear_object_stores(new URL(details.url).hostname + new URL(details.url).pathname);
 
-                    // The SubtleCrypto API works with ArrayBuffer, so we need to encode our string into UTF-8
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(bodyHTML);
-
-                    // Calculate the SHA-256 hash
-                    return crypto.subtle.digest('SHA-256', data)
-                        .then(hashBuffer => {
-                            // Convert the ArrayBuffer to string
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                        });
-                },
-            });
-
-            if(hash && hash.length > 0){
-                hash = hash[0].result;
-
-                let result = await new Promise((resolve) => {
-                    chrome.storage.local.get(['hash_' + url], function(result){
-                        resolve(result);
-                    });
-                });
-
-                if(result['hash_'+url] === hash){
-                    console.log('Hashes match. Skipping cache invalidation...');
-                } else {
-                    try{
-                        await clear_object_stores(url);
-                        let obj = {};
-                        obj['hash_'+url] = hash;
-
-                        await new Promise((resolve) => {
-                            chrome.storage.local.set(obj, function() {
-                                console.log('Hash for', url, 'saved:', hash);
-                                resolve();
-                            });
-                        });
-                    } catch(e){
-                        console.error('The popup was not opened for this page yet');
-                    }
-                }
-            }
-        } catch(e) {
-            console.warn(e.message || e);
-        }
+        chrome.runtime.sendMessage({
+            action: "close_popup",
+        });
     }
-
-    console.log("CACHE INVALIDATION FINISHED")
-    loading[details.tabId] = false;
-});
-
-chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
-    loading[details.tabId] = true;
-    console.log("NAVIGATION INITIATED")
-
-    chrome.runtime.sendMessage({
-        action: "close_popup",
-    });
 });
 
 
@@ -320,96 +255,24 @@ function push_cached_template(request) {
 
 async function process_request(request) {
     if (request.action === "setup") {
-        let openai;
         console.log('Setting up ...')
-        chrome.storage.local.get('openai', function (result) {
-            openai = result['openai']
-        })
-
         open_indexDB(request.url, Object.values(request.templates).map(template => template.name)).then(async () => {
-                // For each template, check whether its content is cached
-                for (let template of Object.values(request.templates)) {
-                    fetch_from_object_store(request.url, template.name).then(nodes => {
-                        // If content is cached send "template_cached" message
-                        if (nodes && nodes.length > 0) {
-                            chrome.runtime.sendMessage({
-                                action: "template_cached",
-                                template_name: template.name
-                            });
-                        }
-                        // If no content is cached send "cache_deleted" message
-                        else {
-                            chrome.runtime.sendMessage({
-                                action: "cache_deleted",
-                                template_name: template.name
-                            });
-                        }
-                    })
-                        .catch(err => {
-                            console.error('Error checking cache for template', template.name, ':', err);
-                        });
+                let result;
+                try {
+                    result = await chrome.scripting.executeScript({
+                        target: {tabId: request.id},
+                        func: fetch
+                    });
+                } catch (e) {
+                    console.warn(e.message || e);
+                    return;
                 }
-
-                fetch_from_object_store(request.url, 'original')
-                    .then(async original => {
-                        console.log('Fetched original data')
-                        if (original?.length > 0) {
-                            console.log("original:", original)
-                            fetch_from_object_store(request.url, 'clusters')
-                                .then(clusters => {
-                                    console.log('Fetched clusters data')
-                                    if (clusters?.length > 0) {
-                                        console.log("clusters:", clusters)
-                                    } else {
-                                        // cluster the original data
-                                        cluster(openai, original).then(clusters => {
-                                            console.log("clusters:", clusters)
-                                            // save clusters to object store
-                                            push_to_object_store(request.url, 'clusters', clusters)
-                                                .then(() => {
-                                                    // successful operation here
-                                                    console.log('Clusters added successfully.');
-                                                })
-                                                .catch(console.error);
-                                        });
-                                    }
-                                })
-                                .catch(console.error);
-                        } else {
-                            console.log('Retrieving text ...')
-                            let result;
-                            try {
-                                result = await chrome.scripting.executeScript({
-                                    target: {tabId: request.id},
-                                    func: fetch
-                                });
-                            } catch (e) {
-                                console.warn(e.message || e);
-                                return;
-                            }
-                            const nodes = result[0].result
-                            push_to_object_store(request.url, 'original', nodes)
-                                .then(() => {
-                                    // successful operation here
-                                    console.log('Original added successfully.');
-                                    // cluster the data from response
-                                    cluster(openai, nodes).then(clusters => {
-                                        console.log("clusters:", clusters)
-                                        // save clusters to object store
-                                        push_to_object_store(request.url, 'clusters', clusters)
-                                            .then(() => {
-                                                // successful operation here
-                                                console.log('Clusters added successfully.');
-                                            })
-                                            .catch(console.error);
-                                    });
-                                })
-                                .catch(console.error);
-                        }
-                    })
-                    .catch(console.error);
+                const nodes = result[0].result
+                push_to_object_store(request.url, 'original', nodes)
+                    .then(() => {
+                    }).catch(console.error);
             }
-        );
+        )
     }
 
     if (request.action === "set_template") {
@@ -417,8 +280,6 @@ async function process_request(request) {
         obj['template_' + request.url] = request.template;
         chrome.storage.local.set(obj, function () {
             console.log('Template for', request.url, 'saved:', request.template);
-
-            // Always fetch and push 'original' first
             push_cached_template(request);
         });
     }
@@ -456,36 +317,33 @@ async function process_request(request) {
 
         new Promise(async (resolve, reject) => {
             try {
-                const clusters = await fetch_from_object_store(request.url, 'clusters');
+                const original = await fetch_from_object_store(request.url, 'original');
                 chrome.storage.local.get(['template_' + request.url, 'openai'], async function (result) {
                     if (result['template_' + request.url] && result['openai']) {
                         let nodes = [];
-                        for await (const generation of generate(clusters, result['template_' + request.url], result['openai'])) {
-                            for (const node of generation) {
-                                nodes.push(node);
+                        for await (const node of generate(original, result['template_' + request.url], result['openai'])) {
+                            nodes.push(node)
+                            const xpath = node.xpath;
+                            const html = node.html;
 
-                                const xpath = node.xpath;
-                                const html = node.html;
+                            const func = function (xpath, html) {
+                                const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 
-                                const func = function (xpath, html) {
-                                    const node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-                                    if (node) {
-                                        node.innerHTML = html;
-                                    } else {
-                                        console.log(`No element matches the provided XPath: ${xpath}`);
-                                    }
+                                if (node) {
+                                    node.innerHTML = html;
+                                } else {
+                                    console.log(`No element matches the provided XPath: ${xpath}`);
                                 }
-
-                                chrome.scripting.executeScript({
-                                    target: {tabId: request.id},
-                                    function: func,
-                                    args: [xpath, html]
-                                });
                             }
+
+                            chrome.scripting.executeScript({
+                                target: {tabId: request.id},
+                                function: func,
+                                args: [xpath, html]
+                            });
                         }
 
-                        if (nodes.length > 0) {
+                        if (nodes.length) {
                             await push_to_object_store(request.url, result['template_' + request.url].name, nodes)
                         }
 
@@ -513,21 +371,11 @@ async function process_request(request) {
             });
         }).catch(error => {
             console.log(`Error during generation: ${error}`);
-            // Handle any additional error processing here...
         });
     }
 }
 
-chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
-    if (request.id && loading[request.id]) {
-        let checkLoading = setInterval(async () => {
-            if (!loading[request.id]) {
-                clearInterval(checkLoading);
-                await process_request(request, sender, sendResponse);
-            }
-        }, 100);
-    } else {
-        await process_request(request, sender, sendResponse);
-    }
-    return true; // Indicates that response function will be called asynchronously.
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+    await process_request(request, sender, sendResponse);
+    return true;
 });

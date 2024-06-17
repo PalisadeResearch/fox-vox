@@ -22,7 +22,7 @@ function startEmojiAnimation() {
     const emoji = ['🦊', '🦊 🦊', '🦊 🦊 🦊'];
 
     generate_button_state.emojiInterval = setInterval(() => {
-        generateButton.innerText = `Generating... (${emoji[generate_button_state.currentEmojiIndex]})`;
+        generateButton.innerText = `Generating... ${emoji[generate_button_state.currentEmojiIndex]}`;
         generate_button_state.currentEmojiIndex = (generate_button_state.currentEmojiIndex + 1) % emoji.length;
         localStorage.setItem("state", JSON.stringify(generate_button_state));
     }, 500);
@@ -120,15 +120,6 @@ export function setup(tab, url) {
             chrome.runtime.sendMessage({action: "generate", id: tab.id, url: url.hostname + url.pathname})
         });
 
-        document.getElementById('clear-cache').addEventListener('click', async () => {
-            chrome.runtime.sendMessage({action: "clear-cache", id: tab.id, url: url.hostname + url.pathname})
-            generate_button_state = {
-                isGenerating: false,
-                currentEmojiIndex: 0,
-                emojiInterval: 0
-            };
-        });
-
         document.getElementById('openAIKey').addEventListener('input', function () {
             console.log("Setting new openAI key..." + document.getElementById('openAIKey').value)
             chrome.runtime.sendMessage({
@@ -163,12 +154,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     window.close()
                 }
             });
-
-            if (generate_button_state.isGenerating) {
-                startEmojiAnimation();
-            } else {
-                stopEmojiAnimation();
-            }
 
             chrome.runtime.sendMessage({
                 action: "setup_finished",
