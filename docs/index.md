@@ -1,7 +1,6 @@
 ---
 layout: default
-title: Landing Page
-permalink: /landing/
+title: Welcome
 ---
 
 # Welcome to FoxVox Landing!
