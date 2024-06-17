@@ -1,6 +1,22 @@
-{% include head.html %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    {% include head.html %}
+</head>
+<body>
+{{ content }}
 
-<div class="twentytwenty-container">
-    <img src="../assets/tg_image_1684397744.jpeg" alt="Before">
-    <img src="../assets/tg_image_453700902.jpeg" alt="After">
-</div>
+<!-- Include jQuery and Twentytwenty scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mhayes-twentytwenty/1.0.0/js/jquery.event.move.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mhayes-twentytwenty/1.0.0/js/jquery.twentytwenty.min.js"></script>
+<script>
+    $(window).on("load", function() {
+        $(".twentytwenty-container").twentytwenty();
+    });
+</script>
+</body>
+</html>
