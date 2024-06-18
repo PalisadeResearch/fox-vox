@@ -3,51 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Comparison Slider</title>
-    <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        #slider-container {
-            width: 80%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-    </style>
+    <title>FoxVox Landing</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="slider-container">
-    <div id="juxtapose"></div>
-</div>
+<header>
+    <h1>Welcome to FoxVox Landing!</h1>
+</header>
+<main>
+    <section id="introduction">
+        <p>FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to interactively demonstrate the capabilities of AI for <strong>automated disinformation at scale</strong>. Our goal is to show how AI can be used by malicious actors—such as large corporations, news websites, social media platforms, or hackers—to subtly alter the content you consume online without your awareness.</p>
+        <p>With current capabilities of AI-models, you are one click away from making NYT sound like a journal on conspiracy theories ...</p>
+    </section>
 
-<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        new juxtapose.JXSlider('#juxtapose',
-            [
-                {
-                    src: 'images/before.jpg',
-                    label: 'Before'
-                },
-                {
-                    src: 'images/after.jpg',
-                    label: 'After'
-                }
-            ],
-            {
-                animate: true,
-                showLabels: true,
-                startingPosition: "50%"
-            });
-    });
-</script>
+    <section id="comparison">
+        <h2>Image Comparison Slider</h2>
+        <img src="images/tg_image_1684397744.jpeg" alt="NYT">
+        <p>Or from making stack overflow a collection of bad jokes ...</p>
+        <img src="images/tg_image_453700902.jpeg" alt="SO">
+    </section>
+
+    <section id="danger">
+        <h2>Why is this dangerous?</h2>
+        <ul>
+            <li><strong>Propaganda:</strong> Effective propaganda often involves interpreting true facts to favor a specific viewpoint rather than spreading outright lies. AI models can generate high-quality news titles and articles en masse, making it easier for actors to flood the internet with politically charged content and sway public opinion more effectively than ever before.</li>
+            <li><strong>Hidden Biases:</strong> Your perception of reality can be subtly manipulated without your knowledge. As more companies integrate AI models to generate, analyze, structure, or search for content, there is a lack of procedures or certifications to ensure these tools are used ethically. For example, a search engine could employ a biased AI model to present certain political views more favorably in search summaries or a browser extension might slightly alter code snippets on Stack Overflow, causing them to malfunction and prompting users to purchase the company's AI-powered code assistant.</li>
+            <li><strong>Untrustworthy Internet Content:</strong> If AI-generated content becomes ubiquitous and difficult to distinguish from genuine human-created content, and there are no in-place solutions to verify content, trusting content on the internet can become impossible.</li>
+            <li><strong>Targeted Attacks:</strong> Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. For instance, personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, AI system could target a specific person, collecting information about them throughout the web, and then making convincing and strategic phishing emails and calls.</li>
+        </ul>
+    </section>
+
+    <section id="cost">
+        <h2>How fast and pricey one generation is? Can we make it even more convincing?</h2>
+        <p>Current implementation of FoxVox uses simple prompting and one request per block of text, meaning you could process around 700k words, which means hundreds of internet pages, before you would have to pay your first $20. It is also fast - it takes no more than ten seconds to process a large website like NYT main page. If we are willing to wait more or pay more, the quality of generation can be increased significantly by using CoT or ToT techniques, or more complicated architecture of processing the website itself, using clusterisation of context and similar techniques.</p>
+        <p>FoxVox was created by a single undergraduate engineer in a month - meaning that this is easy and cheap to develop, and very soon more tools like this will be available to public, meaning safety concerns outlined above will become more and more relevant.</p>
+    </section>
+
+    <section id="narrative">
+        <h2>What is the narrative? What do we propose to do?</h2>
+        <p>FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can be used to manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.</p>
+        <p>Potential of AI for disinformation is vast, and we don't have basic defences against it. We imply that development of AI technologies demands us to adopt new standards of content verification, including web content. These standards can include:</p>
+        <ul>
+            <li>Page hash verifications that happen outside of browser context, allowing us to check if content of the page has been tempered with.</li>
+            <li>Certificates for news aggregators and social media platforms that verify their integrity.</li>
+        </ul>
+    </section>
+
+    <section id="try">
+        <h2>How do I check it out myself?</h2>
+        <ol>
+            <li>Visit our google web store page: <a href="#">google web store link HERE</a></li>
+            <li>Download the Chrome extension</li>
+            <li>Go to your favourite news outlet</li>
+            <li>Open the extension, choose a template, and click generate</li>
+            <li>Enjoy!</li>
+        </ol>
+    </section>
+</main>
 </body>
 </html>
