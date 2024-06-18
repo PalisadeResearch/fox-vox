@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Comparison Slider</title>
+    <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #slider-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div id="slider-container">
+    <div id="juxtapose"></div>
+</div>
+
+<script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new juxtapose.JXSlider('#juxtapose',
+            [
+                {
+                    src: 'images/before.jpg',
+                    label: 'Before'
+                },
+                {
+                    src: 'images/after.jpg',
+                    label: 'After'
+                }
+            ],
+            {
+                animate: true,
+                showLabels: true,
+                startingPosition: "50%"
+            });
+    });
+</script>
+</body>
+</html>
