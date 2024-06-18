@@ -9,11 +9,64 @@ body {
 header {
     background-color: #4CAF50;
     color: white;
-    padding: 2rem 2rem;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+}
+
+.header-content {
     display: flex;
     align-items: center;
-    justify-content: center;
+}
+
+.header-icon {
+    width: 64px;
+    height: 64px;
+    margin-right: 1rem;
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.header-text .subtitle {
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    font-style: italic;
+}
+
+header .cta-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-align: left;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
 }
 
 .header-icon {
@@ -23,15 +76,16 @@ header {
 }
 
 .header-text {
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-header h1 {
+.header-text h1 {
     margin: 0;
     font-size: 2.5rem;
 }
 
-header .subtitle {
+.header-text .subtitle {
     margin: 1rem 0;
     font-size: 1.2rem;
     font-style: italic;
@@ -39,12 +93,12 @@ header .subtitle {
 
 header .cta-button {
     display: inline-block;
-    margin-top: 1rem;
     padding: 0.5rem 1rem;
     background-color: #fff;
     color: #4CAF50;
     text-decoration: none;
     border-radius: 5px;
+    font-weight: bold;
     border: 2px solid #4CAF50;
 }
 
@@ -67,7 +121,7 @@ section {
     margin: 1rem auto;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     max-width: 800px;
 }
 
