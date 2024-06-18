@@ -9,8 +9,36 @@ body {
 header {
     background-color: #4CAF50;
     color: white;
-    padding: 1rem 2rem;
+    padding: 2rem 2rem;
     text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+header .subtitle {
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    font-style: italic;
+}
+
+header .cta-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    color: #4CAF50;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 2px solid #4CAF50;
+}
+
+header .cta-button:hover {
+    background-color: #4CAF50;
+    color: #fff;
 }
 
 main {
@@ -46,4 +74,8 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.juxtapose {
+    margin-bottom: 2rem;
 }
