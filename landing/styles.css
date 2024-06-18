@@ -10,7 +10,20 @@ header {
     background-color: #4CAF50;
     color: white;
     padding: 2rem 2rem;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+}
+
+.header-icon {
+    width: 64px;
+    height: 64px;
+    margin-right: 1rem;
+}
+
+.header-text {
+    flex-grow: 1;
 }
 
 header h1 {
@@ -32,7 +45,6 @@ header .cta-button {
     color: #4CAF50;
     text-decoration: none;
     border-radius: 5px;
-    font-weight: bold;
     border: 2px solid #4CAF50;
 }
 
@@ -78,4 +90,27 @@ a:hover {
 
 .juxtapose {
     margin-bottom: 2rem;
+}
+
+nav .toc {
+    list-style-type: none;
+    padding: 0;
+    margin: 2rem auto;
+    max-width: 800px;
+    text-align: center;
+}
+
+nav .toc li {
+    display: inline;
+    margin: 0 1rem;
+}
+
+nav .toc a {
+    color: #4CAF50;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+nav .toc a:hover {
+    text-decoration: underline;
 }
