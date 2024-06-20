@@ -20,7 +20,8 @@ header {
 .link-container {
     display: flex;
     justify-content: center;
-    margin-top: 10px; /* Adjust this value as needed */
+    margin-top: 10px;
+    /* Adjust this value as needed */
 }
 
 .header-content {
@@ -46,8 +47,10 @@ header h1 {
 }
 
 .github-logo {
-    width: 32px; /* Adjust the size as needed */
-    height: 32px; /* Adjust the size as needed */
+    width: 32px;
+    /* Adjust the size as needed */
+    height: 32px;
+    /* Adjust the size as needed */
     vertical-align: middle;
 }
 
@@ -83,7 +86,8 @@ main {
     padding: 2rem;
 }
 
-h1, h2 {
+h1,
+h2 {
     color: #333;
     text-align: center;
 }
@@ -93,15 +97,17 @@ section {
     margin: 1rem auto;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     max-width: 800px;
 }
 
-ul, ol {
+ul,
+ol {
     padding-left: 2rem;
 }
 
-ul li, ol li {
+ul li,
+ol li {
     margin-bottom: 1rem;
 }
 
