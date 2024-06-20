@@ -155,3 +155,17 @@ nav .toc a:hover {
         padding: 1rem;
     }
 }
+
+/* Custom styles for JuxtaposeJS slider */
+.twentytwenty-left-arrow,
+.twentytwenty-right-arrow,
+.twentytwenty-handle,
+.twentytwenty-handle:before,
+.twentytwenty-handle:after {
+    background-color: black !important;
+}
+
+.twentytwenty-handle:before,
+.twentytwenty-handle:after {
+    color: white !important;
+}
