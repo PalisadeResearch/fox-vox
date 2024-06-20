@@ -17,9 +17,12 @@
         </div>
     </div>
     <div class="link-container">
-        <a href="https://chrome.google.com/webstore" class="cta-button">Add to Chrome</a>
+        <a href="https://chrome.google.com/webstore" class="cta-button center-text">Add to Chrome</a>
         <a href="https://github.com/PalisadeResearch/fox-vox" class="cta-button">
             <img src="images/github-logo.png" alt="GitHub Logo" class="github-logo">
+        </a>
+        <a href="https://x.com/PalisadeAI" class="cta-button">
+            <img src="images/twitter-logo.png" alt="Twitter Logo" class="github-logo">
         </a>
     </div>
 </header>
@@ -51,7 +54,7 @@
         <h2>Why is this Dangerous?</h2>
         <ul>
             <li><strong>Propaganda:</strong> Effective propaganda often involves interpreting true facts to favor a specific viewpoint rather than spreading outright lies. AI models can generate high-quality news titles and articles en masse, enabling actors to flood the internet with politically charged content. This can sway public opinion more effectively than ever before, as the sheer volume and appearance of legitimacy in AI-generated content make it harder for individuals to discern bias.</li>
-            <li><strong>Hidden Biases:</strong> Your perception of reality can be subtly manipulated without your knowledge. As more companies integrate AI models to generate, analyze, structure, or search for content, there is a lack of procedures or certifications to ensure these tools are used ethically. For instance, a search engine could employ a biased AI model to present certain political views more favorably in search summaries. Additionally, a browser extension might slightly alter code snippets on Stack Overflow, causing them to malfunction and prompting users to purchase the company's AI-powered code assistant.</li>
+            <li><strong>Hidden Biases:</strong> Your perception of reality can be subtly manipulated without your knowledge. As more companies integrate AI models to generate, analyze, structure, or search for content, there is a lack of procedures or certifications to ensure these tools are used ethically. For instance, it is <a href="https://automatic1111.github.io/llm-political-compass/">well known</a> that frontier AI is dominantly left-libertarian aligned.</li>
             <li><strong>Untrustworthy Internet Content:</strong> If AI-generated content becomes ubiquitous and difficult to distinguish from genuine human-created content, and there are no solutions in place to verify authenticity, trusting content on the internet can become impossible. This undermines the reliability of online information, leading to a pervasive skepticism that can erode the foundations of informed decision-making and public discourse.</li>
             <li><strong>Targeted Attacks:</strong> Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. Personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, an AI system could target a specific person, collecting information about them from across the web and then crafting convincing and strategic phishing emails and calls. This level of targeted manipulation poses significant threats to personal privacy and security.</li>
         </ul>
@@ -61,6 +64,11 @@
         <h2>It can be made even more Convincing.</h2>
         <p>The current implementation of FoxVox uses simple prompting and processes one request per block of text, allowing for the processing of around 700,000 words, or hundreds of internet pages, before incurring the first $20 charge. It is also fast, taking no more than ten seconds to process a large website like the NYT main page. For those willing to wait longer or pay more, the quality of generation can be significantly enhanced using Chain of Thought (CoT) or Tree of Thought (ToT) techniques. Additionally, better page context utilisation can further improve quality.</p>
         <p>FoxVox was developed by a single undergraduate engineer in a month, demonstrating that it is both easy and inexpensive to create. As more tools like this become available to the public, the safety concerns outlined above will become increasingly relevant.</p>
+    </section>
+
+    <section id="narrative">
+        <h2>What is the narrative? What do we propose to do?</h2>
+        <p>FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can be used to manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.</p>
     </section>
 
     <section id="try">

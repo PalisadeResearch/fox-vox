@@ -55,6 +55,13 @@ header h1 {
     vertical-align: middle;
 }
 
+.center-text {
+    display: flex;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    height: 100vh; /* Example height to show vertical centering */
+}
+
 header .subtitle {
     margin: 1rem 0;
     font-size: 1.2rem;
@@ -71,6 +78,7 @@ header .cta-button {
     font-weight: bold;
     border: 2px solid #4CAF50;
     margin-top: 1rem;
+    text-align: center;
 }
 
 header .cta-button:hover {
