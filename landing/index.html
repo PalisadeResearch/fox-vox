@@ -31,12 +31,12 @@
     </nav>
     <section id="introduction">
         <p>FoxVox is a Chrome extension powered by GPT-4, created by Palisade Research, to interactively demonstrate the capabilities of AI for <strong>automated disinformation at scale</strong>. Our goal is to show how AI can be used by malicious actors—such as large corporations, news websites, social media platforms, or hackers—to subtly alter the content you consume online without your awareness.</p>
-        <p>With current capabilities of AI-models, you are one click away from making NYT sound like a journal on conspiracy theories ...</p>
+        <p>With the current capabilities of AI models, you are one click away from making NYT sound like a journal on conspiracy theories...</p>
     </section>
 
     <section id="comparison">
         <h2>Image Comparison Slider</h2>
-        <p>You can turn a popular Twitter account int a nest of conspiracy theories or try to cancel someone with fake screenshots:</p>
+        <p>You can turn a popular Twitter account into a nest of conspiracy theories or try to cancel someone with fake screenshots:</p>
         <div id="juxtapose1" class="juxtapose">
             <img src="images/EM_cancel.png" alt="EM Cancel">
             <img src="images/EM_conspiracy.png" alt="EM Conspiracy">
@@ -46,8 +46,7 @@
             <img src="images/NYT_fox.png" alt="NYT Fox">
             <img src="images/NYT_vox.png" alt="NYT Vox">
         </div>
-
-        All that is one click and a couple of seconds of generation away!
+        <p>All that is one click and a couple of seconds away!</p>
     </section>
 
     <section id="danger">
@@ -56,41 +55,37 @@
             <li><strong>Propaganda:</strong> Effective propaganda often involves interpreting true facts to favor a specific viewpoint rather than spreading outright lies. AI models can generate high-quality news titles and articles en masse, making it easier for actors to flood the internet with politically charged content and sway public opinion more effectively than ever before.</li>
             <li><strong>Hidden Biases:</strong> Your perception of reality can be subtly manipulated without your knowledge. As more companies integrate AI models to generate, analyze, structure, or search for content, there is a lack of procedures or certifications to ensure these tools are used ethically. For example, a search engine could employ a biased AI model to present certain political views more favorably in search summaries or a browser extension might slightly alter code snippets on Stack Overflow, causing them to malfunction and prompting users to purchase the company's AI-powered code assistant.</li>
             <li><strong>Untrustworthy Internet Content:</strong> If AI-generated content becomes ubiquitous and difficult to distinguish from genuine human-created content, and there are no in-place solutions to verify content, trusting content on the internet can become impossible.</li>
-            <li><strong>Targeted Attacks:</strong> Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. For instance, personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, AI system could target a specific person, collecting information about them throughout the web, and then making convincing and strategic phishing emails and calls.</li>
+            <li><strong>Targeted Attacks:</strong> Advanced AI can tailor disinformation campaigns to specific demographics, increasing their effectiveness. For instance, personalized fake news stories could be created to target individuals based on their online behavior, making the disinformation more convincing. Alternatively, an AI system could target a specific person, collecting information about them throughout the web, and then making convincing and strategic phishing emails and calls.</li>
         </ul>
     </section>
 
     <section id="cost">
-        <h2>How fast and pricey one generation is? Can we make it even more convincing?</h2>
-        <p>Current implementation of FoxVox uses simple prompting and one request per block of text, meaning you could process around 700k words, which means hundreds of internet pages, before you would have to pay your first $20. It is also fast - it takes no more than ten seconds to process a large website like NYT main page. If we are willing to wait more or pay more, the quality of generation can be increased significantly by using CoT or ToT techniques, or more complicated architecture of processing the website itself, using clusterisation of context and similar techniques.</p>
-        <p>FoxVox was created by a single undergraduate engineer in a month - meaning that this is easy and cheap to develop, and very soon more tools like this will be available to public, meaning safety concerns outlined above will become more and more relevant.</p>
+        <h2>Cost and Speed</h2>
+        <p>FoxVox uses simple prompting and one request per block of text, allowing you to process around 700k words before you pay your first $20. It is also fast, taking no more than ten seconds to process a large website like the NYT main page. Higher quality can be achieved by using CoT or ToT techniques, or more complicated architecture.</p>
+        <p>FoxVox was created by a single undergraduate engineer in a month, meaning it is easy and cheap to develop. More tools like this will soon be available to the public, making the safety concerns outlined above more relevant.</p>
     </section>
 
     <section id="narrative">
-        <h2>What is the narrative? What do we propose to do?</h2>
-        <p>FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can be used to manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.</p>
-        <p>Potential of AI for disinformation is vast, and we don't have basic defences against it. We imply that development of AI technologies demands us to adopt new standards of content verification, including web content. These standards can include:</p>
+        <h2>Our Narrative</h2>
+        <p>FoxVox aims to highlight the potential dangers of AI-driven disinformation. By demonstrating how AI can manipulate the content you see online, we hope to raise awareness about the need for ethical guidelines and safeguards in AI development and deployment.</p>
+        <p>The potential of AI for disinformation is vast, and we lack basic defenses against it. The development of AI technologies demands new standards of content verification, including web content. These standards can include:</p>
         <ul>
-            <li>Page hash verifications that happen outside of browser context, allowing us to check if content of the page has been tempered with.</li>
-            <li>Certificates for news aggregators and social media platforms that verify their integrity.</li>
+            <li>Page hash verifications outside the browser context to check if the content has been tampered with.</li>
+            <li>Certificates for news aggregators and social media platforms to verify their integrity.</li>
         </ul>
     </section>
 
     <section id="try">
-        <h2>How do I check it out myself?</h2>
+        <h2>Try it Yourself</h2>
         <ol>
-            <li>Visit our google web store page: <a href="https://chrome.google.com/webstore">Google Web Store</a></li>
-            <li>Download the chrome extension</li>
+            <li>Visit our Google web store page: <a href="https://chrome.google.com/webstore">Google Web Store</a></li>
+            <li>Download the Chrome extension</li>
             <li>Go to your website of choice</li>
             <li>Open the extension, choose a template, and click generate</li>
             <li>Enjoy!</li>
         </ol>
-
-        We cache results and do a lot of stuff in background -- this is a quick public demo, and as such, things tend to break.
-        Just restart the plugin if something goes wrong.
-
-        You will also need to provide the plugin with your own OpenAI API key that has access to gpt-4o model.
-        We are verified by google and don't store your data anywhere but locally, so your keys are safe.
+        <p>We cache results and handle processes in the background. This is a quick public demo, so things might break. Just restart the plugin if something goes wrong.</p>
+        <p>You will need to provide your own OpenAI API key that has access to GPT-4. We are verified by Google and store your data only locally, so your keys are safe.</p>
     </section>
 </main>
 
@@ -99,11 +94,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         new juxtapose.JXSlider('#juxtapose1', [
             {
-                src: 'images/EM_cancel.jpg',
+                src: 'images/EM_cancel.png',
                 label: 'EM Cancel'
             },
             {
-                src: 'images/EM_conspiracy.jpg',
+                src: 'images/EM_conspiracy.png',
                 label: 'EM Conspiracy'
             }
         ], {
@@ -114,11 +109,11 @@
 
         new juxtapose.JXSlider('#juxtapose2', [
             {
-                src: 'images/NYT_fox.jpg',
+                src: 'images/NYT_fox.png',
                 label: 'NYT Fox'
             },
             {
-                src: 'images/NYT_vox.jpg',
+                src: 'images/NYT_vox.png',
                 label: 'NYT Vox'
             }
         ], {
