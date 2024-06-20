@@ -156,16 +156,34 @@ nav .toc a:hover {
     }
 }
 
-/* Custom styles for JuxtaposeJS slider */
-.twentytwenty-left-arrow,
-.twentytwenty-right-arrow,
-.twentytwenty-handle,
-.twentytwenty-handle:before,
-.twentytwenty-handle:after {
-    background-color: black !important;
+div.jx-control {
+    background-color: black;
 }
 
-.twentytwenty-handle:before,
-.twentytwenty-handle:after {
-    color: white !important;
+.vertical div.jx-control {
+    background-color: black;
+}
+
+div.jx-controller {
+    background-color: black;
+}
+
+.vertical div.jx-controller {
+    background-color: black;
+}
+
+div.jx-arrow.jx-left {
+    border-color: transparent black transparent transparent;
+}
+
+div.jx-arrow.jx-right {
+    border-color: transparent transparent transparent black;
+}
+
+.vertical div.jx-arrow.jx-left {
+    border-color: transparent transparent black transparent;
+}
+
+.vertical div.jx-arrow.jx-right {
+    border-color: black transparent transparent transparent;
 }
