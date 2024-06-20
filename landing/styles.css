@@ -21,7 +21,6 @@ header {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    text-align: left;
 }
 
 .header-icon {
@@ -100,6 +99,7 @@ a:hover {
 
 .juxtapose {
     margin-bottom: 2rem;
+    max-width: 100%;
 }
 
 nav .toc {
