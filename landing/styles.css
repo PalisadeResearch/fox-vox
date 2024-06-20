@@ -45,6 +45,16 @@ header h1 {
     font-size: 2.5rem;
 }
 
+.github-logo {
+    width: 32px; /* Adjust the size as needed */
+    height: 32px; /* Adjust the size as needed */
+    vertical-align: middle;
+}
+
+.cta-button img {
+    vertical-align: middle;
+}
+
 header .subtitle {
     margin: 1rem 0;
     font-size: 1.2rem;
