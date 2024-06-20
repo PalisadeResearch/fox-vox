@@ -17,6 +17,12 @@ header {
     flex-wrap: wrap;
 }
 
+.link-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px; /* Adjust this value as needed */
+}
+
 .header-content {
     display: flex;
     align-items: center;
