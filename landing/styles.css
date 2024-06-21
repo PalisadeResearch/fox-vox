@@ -60,6 +60,7 @@ header h1 {
 
 header .subtitle {
     margin-top: 1rem;
+    margin-block-end: 0;
     font-size: 1.2rem;
     font-style: italic;
 }
