@@ -59,13 +59,13 @@ header h1 {
 }
 
 header .subtitle {
-    margin: 1rem 0;
+    margin-top: 1rem;
     font-size: 1.2rem;
     font-style: italic;
 }
 
 header .cta-button {
-    display: inline-block;
+    display: flex;
     padding: 0.5rem 1rem;
     background-color: #fff;
     color: #4CAF50;
@@ -74,8 +74,10 @@ header .cta-button {
     font-weight: bold;
     border: 2px solid #4CAF50;
     margin-top: 1rem;
+    align-items: center;
     text-align: center;
 }
+
 
 header .cta-button:hover {
     background-color: #4CAF50;
