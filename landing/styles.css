@@ -134,7 +134,6 @@ nav .toc {
     margin: 1rem auto 2rem auto;
     max-width: 800px;
     text-align: center;
-    color: black;
 }
 
 nav .toc li {
@@ -143,7 +142,7 @@ nav .toc li {
 }
 
 nav .toc a {
-    color: #4CAF50;
+    color: black;
     font-weight: bold;
     text-decoration: none;
 }
