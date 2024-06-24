@@ -129,7 +129,10 @@ a:hover {
 }
 
 nav .toc {
-    list-style-type: none;
+    display: flex; /* Add flex display to allow list items to line up flow */
+    flex-wrap: wrap; /* Ensure the list can wrap into next line when content is too wide */
+    justify-content: space-evenly; /* Distribute items evenly */
+    list-style-type: none; /* No bullet points */
     padding: 0;
     margin: 1rem auto 2rem auto;
     max-width: 800px;
@@ -137,9 +140,15 @@ nav .toc {
 }
 
 nav .toc li {
-    display: flex;
-    padding: 0 5px;
+    display: inline-flex; /* Change to inline-flex */
     margin: 0 1rem;
+    white-space: nowrap; /* Prevent breaking lines within <li> */
+}
+
+/* Add "|" in between list items */
+nav .toc li:not(:last-child):after {
+    content: '|';
+    padding-left: 10px;
 }
 
 nav .toc a {
@@ -150,16 +159,6 @@ nav .toc a {
 
 nav .toc a:hover {
     text-decoration: underline;
-}
-
-ul.toc li + li:before {
-    color: #000;
-    content: "|";
-    padding: 0 10px;
-}
-
-ul.toc li span {
-    white-space: nowrap;
 }
 
 @media (max-width: 768px) {
