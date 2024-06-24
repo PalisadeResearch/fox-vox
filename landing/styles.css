@@ -137,7 +137,8 @@ nav .toc {
 }
 
 nav .toc li {
-    display: inline;
+    display: flex;
+    padding: 0 5px;
     margin: 0 1rem;
 }
 
@@ -149,6 +150,16 @@ nav .toc a {
 
 nav .toc a:hover {
     text-decoration: underline;
+}
+
+ul.toc li + li:before {
+    color: #000;
+    content: "|";
+    padding: 0 10px;
+}
+
+ul.toc li span {
+    white-space: nowrap;
 }
 
 @media (max-width: 768px) {
