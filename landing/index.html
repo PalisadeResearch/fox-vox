@@ -43,32 +43,30 @@
             </ul>
         </nav>
         <section id="introduction">
-            <p>FoxVox is an open-source Chrome extension powered by GPT-4, that <a href="https://palisaderesearch.org/"> we </a> created to demonstrate how AI can be used for spreading disinformation and subverting the content of respected online media.</p>
+            <p>FoxVox is an open-source Chrome extension powered by GPT-4. <a href="https://palisaderesearch.org/"> wWe </a> created FoxVox to demonstrate how AI can be used to subtly manipulate the content you consume.</p>
         </section>
 
         <section id="comparison">
-            <h2>What does FoxVox look like?</h2>
-            <p>You can turn Elon’s Twitter account into a nest of conspiracy theories and use fake screenshots to attack the grandfather of AI:</p>
+            <h2>What can FoxVox do?</h2>
+            <p>It can turn Elon’s Twitter account into a nest of conspiracy theories, or use fake screenshots to attack the grandfather of AI:</p>
             <div id="juxtapose1" class="juxtapose"></div>
-            <p>Or rewrite the New York Times to adhere to a politically charged agenda:</p>
+            <p>It can make the New York Times look like it was written by Fox, or Vox:</p>
             <div id="juxtapose2" class="juxtapose"></div>
         </section>
 
         <section id="danger">
             <h2>Why is this dangerous?</h2>
             <ul>
-                <li><strong>Siloed realities:</strong> Companies, governments, and cyber criminals already know a lot about you. Cookies track your internet activity, data brokers buy and sell detailed demographic info, and companies pay hundreds of billions of dollars for this data to  effectively target their advertising. In the past, this data could influence which human-written content lands in your newsfeed. But now…
-                <p>News providers, marketers, and political campaigns could rewrite articles on the fly that are tailored to the age of your children, your political preferences or the medical conditions. You’d never even know you were shown content that had been optimized to conform to your worldview.</p>
-                </li>
-                <li><strong>Propaganda:</strong> Effective propaganda often involves interpreting true facts to favor a specific viewpoint, rather than spreading outright lies. AI models can recreate realistic news titles and articles en masse, enabling actors to flood the internet with politically charged content. </li>
-                <li><strong>Hidden biases:</strong> The world can be subtly manipulated without anybody’s knowledge. Today, companies increasingly use <a href="https://automatic1111.github.io/llm-political-compass">AI with consistent political biases</a> to generate, analyze and structure their data. </li>
-                <li><strong>Breakdown of trust:</strong> It is already difficult to know who to trust or what to believe on the internet. The cumulative effects of ubiquitous AI-generated content could lead to the further breakdown of institutional trust and increased polarization. If people are overwhelmed with targeted AI content, foundations of online public discourse and informed decision making would erode.</li>
+                <li><strong>Siloed realities:</strong> Companies, governments, and cyber criminals already know a lot about you. Cookies track your internet activity, and companies pay data brokers hundreds of billions of dollars to influence which content lands in your newsfeed. But now, news providers, marketers, and political campaigns could rewrite articles on the fly, tailored to your medical condition, political beliefs, or the age of your children. You’d never even know that the content had been optimized to conform to your worldview. </li>
+                <li><strong>Propaganda:</strong> Effective propaganda often involves interpreting true facts to favor a specific viewpoint, as opposed to spreading outright lies. AI models can recreate realistic news titles and articles en masse, enabling actors to flood the internet with politically charged content. </li>
+                <li><strong>Hidden biases:</strong> When biased models are incorporated into our daily lives, the subtle changes they cause may go unnoticed, potentially leading to undesirable outcomes. Today, companies increasingly use <a href="https://automatic1111.github.io/llm-political-compass">AI with consistent political biases</a> to generate, analyze, and structure their data. </li>
+                <li><strong>Breakdown of trust:</strong> It is already difficult to know what to believe on the internet. The cumulative effects of ubiquitous AI-generated content could lead to the further breakdown of public discourse, informed decision-making, institutional trust, and could increase polarization. </li>
             </ul>
         </section>
 
         <section id="cost">
             <h2>FoxVox is fast and cheap</h2>
-            <p>It can process large pages like the NYT in less than 10 seconds, and can process hundreds of pages for less than $20.  For those willing to wait longer or pay more, the text quality can be significantly improved with chain/tree of thought and better context utilization./ToT and better context utilisation.</p>
+            <p>It can process large pages like the NYT in less than 10 seconds, and can process hundreds of pages for less than $20. For those willing to wait longer or pay more, the text quality can be significantly improved with chain/tree of thought and better context utilization</p>
         </section>
 
         <section id="try">
@@ -119,12 +117,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             new juxtapose.JXSlider('#juxtapose1', [
                 {
-                    src: 'images/EM_cancel.png',
-                    label: 'EM Cancel'
+                    src: 'images/SA_humour.png',
+                    label: 'Humour'
                 },
                 {
-                    src: 'images/EM_conspiracy.png',
-                    label: 'EM Conspiracy'
+                    src: 'images/SA_conspiracy.png',
+                    label: 'Conspiracy'
                 }
             ], {
                 animate: true,
