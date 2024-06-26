@@ -43,7 +43,7 @@
             </ul>
         </nav>
         <section id="introduction">
-            <p>FoxVox is an open-source Chrome extension powered by GPT-4. <a href="https://palisaderesearch.org/"> wWe </a> created FoxVox to demonstrate how AI can be used to subtly manipulate the content you consume.</p>
+            <p>FoxVox is an open-source Chrome extension powered by GPT-4. <a href="https://palisaderesearch.org/"> We </a> created FoxVox to demonstrate how AI can be used to subtly manipulate the content you consume.</p>
         </section>
 
         <section id="comparison">
@@ -84,28 +84,8 @@
 
         <section id="key">
             <h2>Community key</h2>
-            <p>We realise not all will be able to create and use their own keys. For purposes of testing, we provide here our own key, with a community limit of 20$ per month. Please, use it sparingly and only if you can't afford your own key or register it.</p>
-            <p>Get the key:</p>
-            <button onclick="decodeKey()" class="cta-button">Get API Key</button>
-            <p id="apiKey"></p>
-
-            <script>
-                // Encoded API key
-                const encodedKey = 'c2stcHJvai1KeGUwd2ltTDBTMFpZYktpbVFXZ1QzQmxia0ZKelZJY2Zoa3dySHRrRUd1dnUzemMK';
-
-                // Function to decode Base64
-                function decodeBase64(str) {
-                    return decodeURIComponent(atob(str).split('').map(function(c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                }
-
-                // Function to decode and display the API key
-                function decodeKey() {
-                    const apiKey = decodeBase64(encodedKey);
-                    document.getElementById('apiKey').textContent = apiKey;
-                }
-            </script>
+            <p>We realise not all will be able to create and use their own keys. For purposes of testing, we provide our own key, with a community limit of 20$ per month. Please, use it sparingly and only if you can't afford your own key or register it.</p>
+            <p>This key will be automatically used if you leave the input field empty, indicated by "community key" line</p>
         </section>
         <section>
             Project by <a href="https://palisaderesearch.org/">Palisade Research</a> (2024). Subscribe <a href="http://x.com/palisadeai">on X</a>, and check it on <a href="https://github.com/palisaderesearch/foxvox">GitHub</a>.
