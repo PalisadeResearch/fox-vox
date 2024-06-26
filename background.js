@@ -2,7 +2,7 @@ import {clear_object_stores, fetch_from_object_store, open_indexDB, push_to_obje
 import {CoT} from "./generation.js";
 import OpenAI from "openai";
 
-function fetch() {
+function collect_content() {
     const TEXT_BOUNDARY_MIN = 20;
 
     function get_position(element) {
@@ -179,7 +179,24 @@ async function* generate(nodes, template, openai, default_openai) {
             ]
         })
     } catch (e) {
-        key = default_openai
+        console.log("Fetching data!")
+        await fetch('https://gist.githubusercontent.com/fedor-palisade-research/15cc05c51d4659d7bbec3f5e9594aaf6/raw/311a92e4a25ce1fd5a64951ad35ab09b98399f88/community_key.txt')
+            .then(response => response.text())
+            .then(data => {
+                console.log(data)
+
+                function decodeBase64(str) {
+                    return decodeURIComponent(atob(str).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                }
+
+                key = decodeBase64(data);
+            })
+            .catch(error => {
+                console.error('Error fetching the string:', error)
+                key = default_openai
+            });
     }
 
     const promises = nodes.map(async node => {
@@ -279,7 +296,7 @@ async function process_request(request) {
                 try {
                     result = await chrome.scripting.executeScript({
                         target: {tabId: request.id},
-                        func: fetch
+                        func: collect_content
                     });
                 } catch (e) {
                     console.warn(e.message || e);
