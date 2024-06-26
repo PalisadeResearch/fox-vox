@@ -1,5 +1,6 @@
 import {clear_object_stores, fetch_from_object_store, open_indexDB, push_to_object_store} from "./database.js";
 import {CoT} from "./generation.js";
+import OpenAI from "openai";
 
 function fetch() {
     const TEXT_BOUNDARY_MIN = 20;
@@ -163,11 +164,28 @@ Generation (DOESN'T WORK)
 --###--
 */
 
-async function* generate(nodes, template, openai) {
+async function* generate(nodes, template, openai, default_openai) {
+    let key = openai
+    console.log("Community key is: ", default_openai)
+    const client = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
+    try {
+        await client.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    "role": "system",
+                    "content": "ping"
+                }
+            ]
+        })
+    } catch (e) {
+        key = default_openai
+    }
+
     const promises = nodes.map(async node => {
         console.log("CoT launched for node", node, "at", Date.now(), "with template", template.generation);
         const original = node.innerHTML;
-        const generation = await CoT(openai, template, original);
+        const generation = await CoT(key, template, original);
         console.log("CoT finished for node", node, "at", Date.now(), "with result:", generation);
         return {xpath: node.xpath, html: generation};
     });
@@ -303,9 +321,15 @@ async function process_request(request) {
 
     if (request.action === "setup_finished") {
         chrome.storage.local.get('openai', function (result) {
+            let api_key = result['openai']
+
+            if (typeof api_key === "undefined") {
+                api_key = "community key"
+            }
+
             chrome.runtime.sendMessage({
                 action: "push_openai_to_popup",
-                openai: result['openai']
+                openai: api_key
             });
         })
     }
@@ -321,7 +345,7 @@ async function process_request(request) {
                 chrome.storage.local.get(['template_' + request.url, 'openai'], async function (result) {
                     if (result['template_' + request.url] && result['openai']) {
                         let nodes = [];
-                        for await (const node of generate(original, result['template_' + request.url], result['openai'])) {
+                        for await (const node of generate(original, result['template_' + request.url], result['openai'], request.key)) {
                             nodes.push(node)
                             const xpath = node.xpath;
                             const html = node.html;

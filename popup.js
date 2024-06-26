@@ -47,7 +47,8 @@ export function setup(tab, url) {
                     action: "setup",
                     id: tab.id,
                     url: url.hostname + url.pathname,
-                    templates: templates
+                    templates: templates,
+                    key: data.api.key
                 });
 
                 let radio_container = document.getElementById('radio-container');
@@ -110,24 +111,38 @@ export function setup(tab, url) {
                     });
                 }
 
+
+                document.getElementById('generate-button').addEventListener('click', async () => {
+                    function decodeBase64(str) {
+                        return decodeURIComponent(atob(str).split('').map(function(c) {
+                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join(''));
+                    }
+
+                    chrome.runtime.sendMessage({action: "generate", id: tab.id, url: url.hostname + url.pathname, key: decodeBase64(data.api.key)})
+                });
+
+                document.getElementById('openAIKey').addEventListener('input', function () {
+                    let openAIKeyValue = document.getElementById('openAIKey').value;
+
+                    if (openAIKeyValue === 'undefined' || openAIKeyValue === '') {
+                        openAIKeyValue = "community key";
+                    }
+
+                    console.log("Setting new openAI key..." + openAIKeyValue)
+
+                    chrome.runtime.sendMessage({
+                        action: "push_openai_to_background",
+                        key: openAIKeyValue,
+                        url: url.hostname + url.pathname
+                    })
+                });
+
             })
             .catch((error) => {
                 console.log('Error:', error)
                 reject(error);
             });
-
-        document.getElementById('generate-button').addEventListener('click', async () => {
-            chrome.runtime.sendMessage({action: "generate", id: tab.id, url: url.hostname + url.pathname})
-        });
-
-        document.getElementById('openAIKey').addEventListener('input', function () {
-            console.log("Setting new openAI key..." + document.getElementById('openAIKey').value)
-            chrome.runtime.sendMessage({
-                action: "push_openai_to_background",
-                key: document.getElementById('openAIKey').value,
-                url: url.hostname + url.pathname
-            })
-        });
 
         resolve();
     })
@@ -147,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     console.log("Generation completed");
                 }
                 if (message.action === "push_openai_to_popup") {
-                    console.log("OpenAI set!" + message.openai)
+                    console.log("OpenAI set!: " + message.openai)
                     document.getElementById('openAIKey').value = message.openai;
                 }
                 if (message.action === "close_popup") {
@@ -158,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             chrome.runtime.sendMessage({
                 action: "setup_finished",
                 id: tab.id,
-                url: url.hostname + url.pathname
+                url: url.hostname + url.pathname,
             })
         });
     })
