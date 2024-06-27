@@ -126,7 +126,7 @@ export function setup(tab, url) {
                     let openAIKeyValue = document.getElementById('openAIKey').value;
 
                     if (openAIKeyValue === 'undefined' || openAIKeyValue === '') {
-                        openAIKeyValue = "community key";
+                        openAIKeyValue = "insert your own OpenAI API key";
                     }
 
                     console.log("Setting new openAI key..." + openAIKeyValue)

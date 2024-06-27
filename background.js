@@ -167,18 +167,39 @@ Generation (DOESN'T WORK)
 async function* generate(nodes, template, openai, default_openai) {
     let key = openai
     console.log("Community key is: ", default_openai)
-    const client = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
-    try {
-        await client.chat.completions.create({
-            model: 'gpt-4o',
-            messages: [
-                {
-                    "role": "system",
-                    "content": "ping"
-                }
-            ]
-        })
-    } catch (e) {
+    if(key) {
+        const client = new OpenAI({apiKey: key, dangerouslyAllowBrowser: true});
+        try {
+            await client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        "role": "system",
+                        "content": "ping"
+                    }
+                ]
+            })
+        } catch (e) {
+            console.log("Fetching data!")
+            await fetch('https://gist.githubusercontent.com/fedor-palisade-research/15cc05c51d4659d7bbec3f5e9594aaf6/raw/311a92e4a25ce1fd5a64951ad35ab09b98399f88/community_key.txt')
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data)
+
+                    function decodeBase64(str) {
+                        return decodeURIComponent(atob(str).split('').map(function (c) {
+                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join(''));
+                    }
+
+                    key = decodeBase64(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching the string:', error)
+                    key = default_openai
+                });
+        }
+    } else {
         console.log("Fetching data!")
         await fetch('https://gist.githubusercontent.com/fedor-palisade-research/15cc05c51d4659d7bbec3f5e9594aaf6/raw/311a92e4a25ce1fd5a64951ad35ab09b98399f88/community_key.txt')
             .then(response => response.text())
@@ -186,7 +207,7 @@ async function* generate(nodes, template, openai, default_openai) {
                 console.log(data)
 
                 function decodeBase64(str) {
-                    return decodeURIComponent(atob(str).split('').map(function(c) {
+                    return decodeURIComponent(atob(str).split('').map(function (c) {
                         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                     }).join(''));
                 }
@@ -341,7 +362,7 @@ async function process_request(request) {
             let api_key = result['openai']
 
             if (typeof api_key === "undefined") {
-                api_key = "community key"
+                api_key = "insert OpenAI API key"
             }
 
             chrome.runtime.sendMessage({
@@ -360,7 +381,7 @@ async function process_request(request) {
             try {
                 const original = await fetch_from_object_store(request.url, 'original');
                 chrome.storage.local.get(['template_' + request.url, 'openai'], async function (result) {
-                    if (result['template_' + request.url] && result['openai']) {
+                    if (result['template_' + request.url]) {
                         let nodes = [];
                         for await (const node of generate(original, result['template_' + request.url], result['openai'], request.key)) {
                             nodes.push(node)

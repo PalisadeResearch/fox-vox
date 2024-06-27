@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FoxVox",
-  "version": "2.7",
+  "version": "3.1",
   "description": "Provided with OpenAI API key, rewrites any website to look like something else!",
   "permissions": ["storage", "tabs", "webNavigation", "scripting", "activeTab"],
   "action": {
